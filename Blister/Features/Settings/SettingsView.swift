@@ -21,8 +21,24 @@ struct SettingsView: View {
                                category: "Settings")
 
     var body: some View {
+        let stats = CollectionStats.compute(from: cars)
         NavigationStack {
             List {
+                Section {
+                    LabeledContent(String(localized: "Owned"), value: "\(stats.ownedCount)")
+                    LabeledContent(String(localized: "Wishlist"), value: "\(stats.wishlistCount)")
+                    LabeledContent(
+                        String(localized: "Total spent"),
+                        value: CurrencyFormat.inr(stats.totalSpentINR)
+                    )
+                    LabeledContent(
+                        String(localized: "Estimated value"),
+                        value: CurrencyFormat.inr(stats.totalEstimatedValueINR)
+                    )
+                } header: {
+                    Text(String(localized: "Collection"))
+                }
+
                 Section {
                     if let url = model.csvURL {
                         ShareLink(item: url) {
