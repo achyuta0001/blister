@@ -63,7 +63,10 @@ struct DocumentsPhotoStore: PhotoStore {
         }
         try heic.write(to: photosDirectory.appendingPathComponent(filename), options: .atomic)
 
-        let thumb = Self.thumbnail(from: upright, maxEdge: 400)
+        // Saliency-crop the thumbnail (once, at save) so grid cards are framed on the card; the
+        // full image on disk is untouched. Falls back to the uncropped upright image on failure.
+        let framed = SaliencyCropper.centeredCrop(upright, targetAspect: 1) ?? upright
+        let thumb = Self.thumbnail(from: framed, maxEdge: 400)
         guard let jpeg = thumb.jpegData(compressionQuality: 0.8) else {
             throw PhotoStoreError.encodingFailed
         }
