@@ -65,6 +65,23 @@ enum CleanupGeometry {
         return CGRect(origin: origin, size: size)
     }
 
+    /// A short mirror-reflection rect sitting flush beneath the subject, for the composite's **UIKit
+    /// top-left render space** (distinct from the bottom-left helpers in this type). The reflection
+    /// hangs directly below the subject's base (`subjectPlacement.maxY`), the same width and `x`, with
+    /// height a fraction of the subject's own. Kept short — a tall carded product's reflection should
+    /// stay subtle — and clamped so its bottom edge never passes `canvas.height`.
+    static func reflectionRect(under subjectPlacement: CGRect,
+                               canvas: CGSize,
+                               heightFraction: CGFloat) -> CGRect {
+        guard subjectPlacement.width > 0, subjectPlacement.height > 0 else { return .zero }
+        let desired = subjectPlacement.height * max(0, heightFraction)
+        let available = max(0, canvas.height - subjectPlacement.maxY)
+        let height = min(desired, available)
+        guard height > 0 else { return .zero }
+        return CGRect(x: subjectPlacement.minX, y: subjectPlacement.maxY,
+                      width: subjectPlacement.width, height: height)
+    }
+
     /// A flattened ellipse rect for the soft contact shadow, sitting just under the subject's base.
     /// In this bottom-left space the subject's base is `subjectPlacement.minY`; the ellipse is
     /// horizontally centered on the subject and nudged up slightly so it kisses the wheels.

@@ -90,6 +90,38 @@ struct CleanupGeometryTests {
         #expect(CleanupGeometry.placement(of: CGSize(width: 10, height: 10), in: .zero) == .zero)
     }
 
+    // MARK: reflectionRect
+
+    @Test func reflectionSitsBeneathSubjectAndMatchesWidth() {
+        let place = CGRect(x: 200, y: 100, width: 400, height: 600)
+        let canvas = CGSize(width: 1000, height: 1000)
+        let reflection = CleanupGeometry.reflectionRect(under: place, canvas: canvas,
+                                                        heightFraction: 0.25)
+        // Flush beneath the base (top-left space => base is maxY).
+        #expect(reflection.minY == place.maxY)
+        #expect(reflection.minX == place.minX)
+        #expect(reflection.width == place.width)
+        // Short: a fraction of the subject height (0.25 * 600 = 150, well within the canvas).
+        #expect(abs(reflection.height - 150) < 0.0001)
+    }
+
+    @Test func reflectionClampsToCanvasBottom() {
+        // Subject base sits low, so the full reflection would overflow the canvas.
+        let place = CGRect(x: 100, y: 500, width: 400, height: 400)
+        let canvas = CGSize(width: 1000, height: 1000)
+        let reflection = CleanupGeometry.reflectionRect(under: place, canvas: canvas,
+                                                        heightFraction: 0.5)
+        // Would-be height 200 exceeds the 100pt of space left below the base — clamp to it.
+        #expect(reflection.maxY <= canvas.height + 0.0001)
+        #expect(abs(reflection.height - 100) < 0.0001)
+    }
+
+    @Test func reflectionWithDegenerateSubjectIsZero() {
+        #expect(CleanupGeometry.reflectionRect(under: .zero,
+                                               canvas: CGSize(width: 100, height: 100),
+                                               heightFraction: 0.3) == .zero)
+    }
+
     // MARK: contactShadowRect
 
     @Test func shadowSitsUnderSubjectAndIsCentered() {

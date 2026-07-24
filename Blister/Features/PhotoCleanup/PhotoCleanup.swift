@@ -1,6 +1,7 @@
 import UIKit
 import Vision
 import CoreImage
+import CoreImage.CIFilterBuiltins
 import os
 
 /// On-device photo cleanup (**frozen contract** — the Add Car / Edit UIs code against `cleaned(_:)`).
@@ -90,19 +91,54 @@ enum PhotoCleanup {
             let cg = ctx.cgContext
             let canvasRect = CGRect(origin: .zero, size: canvas)
 
-            // Studio backdrop: near-black with a soft lighter pool in the centre.
-            UIColor(red: 0x1C / 255, green: 0x1C / 255, blue: 0x1C / 255, alpha: 1).setFill()
+            // Studio backdrop: near-black, with a soft central pool subtly tinted by the subject's
+            // own average colour (desaturated + darkened) so it reads as colour-matched studio light
+            // rather than flat grey. Falls back to the old neutral pool if the average can't be read.
+            let edge = UIColor(red: 0x1C / 255, green: 0x1C / 255, blue: 0x1C / 255, alpha: 1)
+            let pool = studioPoolColor(from: subject) ?? UIColor(white: 0.20, alpha: 1)
+            edge.setFill()
             cg.fill(canvasRect)
             if let gradient = CGGradient(
                 colorsSpace: CGColorSpaceCreateDeviceRGB(),
-                colors: [UIColor(white: 0.20, alpha: 1).cgColor,
-                         UIColor(red: 0x1C / 255, green: 0x1C / 255, blue: 0x1C / 255, alpha: 1).cgColor] as CFArray,
+                colors: [pool.cgColor, edge.cgColor] as CFArray,
                 locations: [0, 1]
             ) {
                 let center = CGPoint(x: canvas.width / 2, y: canvas.height * 0.42)
                 cg.drawRadialGradient(gradient, startCenter: center, startRadius: 0,
                                       endCenter: center, endRadius: canvas.width * 0.62,
                                       options: [.drawsAfterEndLocation])
+            }
+
+            // Soft mirror reflection beneath the subject (product-shot style). Kept short + faded so a
+            // tall carded product's reflection stays subtle and never overflows the square canvas.
+            let reflection = CleanupGeometry.reflectionRect(under: place, canvas: canvas,
+                                                            heightFraction: 0.22)
+            if reflection.height > 1 {
+                cg.saveGState()
+                cg.beginTransparencyLayer(auxiliaryInfo: nil)
+                cg.clip(to: reflection)
+                // Mirror the subject across the base line (y = place.maxY) so its bottom edge meets
+                // the real base; the clip keeps only the short top slice.
+                cg.saveGState()
+                cg.translateBy(x: 0, y: place.maxY * 2)
+                cg.scaleBy(x: 1, y: -1)
+                UIImage(cgImage: subject).draw(in: place)
+                cg.restoreGState()
+                // Fade the reflection out top-to-bottom (strongest at the base).
+                cg.setBlendMode(.destinationIn)
+                if let fade = CGGradient(
+                    colorsSpace: CGColorSpaceCreateDeviceRGB(),
+                    colors: [UIColor(white: 1, alpha: 0.35).cgColor,
+                             UIColor(white: 1, alpha: 0).cgColor] as CFArray,
+                    locations: [0, 1]
+                ) {
+                    cg.drawLinearGradient(fade,
+                                          start: CGPoint(x: reflection.midX, y: reflection.minY),
+                                          end: CGPoint(x: reflection.midX, y: reflection.maxY),
+                                          options: [])
+                }
+                cg.endTransparencyLayer()
+                cg.restoreGState()
             }
 
             // Soft contact shadow under the subject (UIKit top-left space: base is `place.maxY`).
@@ -129,5 +165,46 @@ enum PhotoCleanup {
             // The lifted subject.
             UIImage(cgImage: subject).draw(in: place)
         }
+    }
+
+    /// A low-saturation, mostly-dark colour derived from the subject for the backdrop pool: a hint of
+    /// the casting's colour, never a spotlight. `nil` when the average can't be read (caller falls
+    /// back to a neutral grey).
+    private static func studioPoolColor(from subject: CGImage) -> UIColor? {
+        guard let average = averageColor(of: subject) else { return nil }
+        var hue: CGFloat = 0, saturation: CGFloat = 0, brightness: CGFloat = 0, alpha: CGFloat = 0
+        guard average.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha) else {
+            return nil
+        }
+        let pooledSaturation = min(saturation * 0.4, 0.35)
+        let pooledBrightness = min(max(brightness, 0.12), 0.26)
+        return UIColor(hue: hue, saturation: pooledSaturation, brightness: pooledBrightness, alpha: 1)
+    }
+
+    /// Average colour of the lifted subject via `CIAreaAverage`. The subject has a transparent
+    /// background, so the rendered (premultiplied) average is un-premultiplied to recover the
+    /// subject's own colour instead of a value dragged toward black by the empty pixels.
+    private static func averageColor(of image: CGImage) -> UIColor? {
+        let ciImage = CIImage(cgImage: image)
+        let filter = CIFilter.areaAverage()
+        filter.inputImage = ciImage
+        filter.extent = ciImage.extent
+        guard let output = filter.outputImage else { return nil }
+
+        var bitmap = [UInt8](repeating: 0, count: 4)
+        let context = CIContext()
+        context.render(output,
+                       toBitmap: &bitmap,
+                       rowBytes: 4,
+                       bounds: CGRect(x: 0, y: 0, width: 1, height: 1),
+                       format: .RGBA8,
+                       colorSpace: CGColorSpaceCreateDeviceRGB())
+
+        let alpha = CGFloat(bitmap[3]) / 255
+        guard alpha > 0.01 else { return nil }
+        let red = min(CGFloat(bitmap[0]) / 255 / alpha, 1)
+        let green = min(CGFloat(bitmap[1]) / 255 / alpha, 1)
+        let blue = min(CGFloat(bitmap[2]) / 255 / alpha, 1)
+        return UIColor(red: red, green: green, blue: blue, alpha: 1)
     }
 }
