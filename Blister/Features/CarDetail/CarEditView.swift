@@ -27,6 +27,8 @@ struct CarEditView: View {
     @State private var noSubjectFound = false
     /// The (original, cleaned) pair to preview; non-nil drives the cleanup sheet.
     @State private var cleanupPreview: EditCleanupPreview?
+    /// Non-nil when a save failed, so the user is told rather than the failure being swallowed.
+    @State private var saveError: ErrorAlert?
 
     private let photoStore: PhotoStore = DocumentsPhotoStore.shared
     private let logger = Logger(subsystem: "app.blister", category: "CarEdit")
@@ -88,6 +90,7 @@ struct CarEditView: View {
                     onKeepOriginal: {}
                 )
             }
+            .errorAlert($saveError)
             .scrollContentBackground(.hidden)
             .background(DesignTokens.background)
             .navigationTitle(String(localized: "Edit Car"))
@@ -170,7 +173,7 @@ struct CarEditView: View {
 
     private func save() {
         guard isValid else { return }
-        applyStagedPhotoIfNeeded()
+        let photoApplied = applyStagedPhotoIfNeeded()
         car.castingName = castingName.trimmingCharacters(in: .whitespacesAndNewlines)
         car.brand = brand
         car.colorway = Self.trimmedOrNil(colorway)
@@ -186,14 +189,21 @@ struct CarEditView: View {
             try modelContext.save()
         } catch {
             logger.error("Edit save failed: \(error.localizedDescription, privacy: .public)")
+            saveError = ErrorAlert(
+                message: String(localized: "Your changes couldn’t be saved. Please try again.")
+            )
+            return
         }
+        // Data saved; if the cleaned-photo swap failed, keep the sheet open so its alert is seen.
+        guard photoApplied else { return }
         dismiss()
     }
 
     /// Persists a staged cleaned image: writes a new file, points `photoFilenames` at it, and deletes
-    /// the old one. A save failure leaves the existing photo untouched.
-    private func applyStagedPhotoIfNeeded() {
-        guard let cleaned = stagedCleanedImage else { return }
+    /// the old one. Returns `false` (and surfaces an alert) if the write failed, leaving the existing
+    /// photo untouched and the staged image available for a retry.
+    private func applyStagedPhotoIfNeeded() -> Bool {
+        guard let cleaned = stagedCleanedImage else { return true }
         let oldFilename = car.photoFilenames.first
         do {
             let newFilename = try photoStore.save(cleaned)
@@ -211,10 +221,15 @@ struct CarEditView: View {
                     logger.error("Old photo delete failed: \(error.localizedDescription, privacy: .public)")
                 }
             }
+            stagedCleanedImage = nil
+            return true
         } catch {
             logger.error("Cleaned photo save failed: \(error.localizedDescription, privacy: .public)")
+            saveError = ErrorAlert(
+                message: String(localized: "The cleaned-up photo couldn’t be saved. Your other changes were kept.")
+            )
+            return false
         }
-        stagedCleanedImage = nil
     }
 
     private static func trimmedOrNil(_ text: String) -> String? {

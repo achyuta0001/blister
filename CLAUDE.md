@@ -7,6 +7,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Blister** — a native iOS die-cast (1:64) collection tracker. SwiftUI + SwiftData, Apple frameworks
 only. Original requirements in `req.md`; design specs and roadmap in `docs/superpowers/specs/`.
 
+## Commits
+
+Do **not** add `Co-Authored-By` or `Claude-Session` trailers to commit messages or PRs.
+
 ## Commands
 
 ```sh

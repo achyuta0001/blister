@@ -25,6 +25,8 @@ struct AddCarView: View {
     @State private var noSubjectFound = false
     /// The (original, cleaned) pair to preview; non-nil drives the cleanup sheet.
     @State private var cleanupPreview: CleanupPreview?
+    /// Non-nil when a save failed, so the user is told rather than the failure being swallowed.
+    @State private var saveError: ErrorAlert?
 
     private let photoStore: PhotoStore = DocumentsPhotoStore.shared
     private let recognizer = CardTextRecognizer()
@@ -69,6 +71,7 @@ struct AddCarView: View {
                     onKeepOriginal: {}
                 )
             }
+            .errorAlert($saveError)
             .onChange(of: libraryItem) { _, newItem in
                 loadLibraryItem(newItem)
             }
@@ -359,6 +362,10 @@ struct AddCarView: View {
             try modelContext.save()
         } catch {
             logger.error("Car save failed: \(error.localizedDescription, privacy: .public)")
+            saveError = ErrorAlert(
+                message: String(localized: "This car couldn’t be saved. Please try again.")
+            )
+            return
         }
 
         if addAnother {

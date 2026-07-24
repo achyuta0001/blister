@@ -22,6 +22,10 @@ struct WishlistView: View {
     /// card has already left the grid — the sheet only collects the optional price.
     @State private var foundCar: Car?
 
+    /// Non-nil when the "Found it" save failed, so the user is told rather than the failure being
+    /// swallowed.
+    @State private var saveError: ErrorAlert?
+
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "Blister",
                                category: "Wishlist")
 
@@ -56,6 +60,7 @@ struct WishlistView: View {
                 FoundItSheet(car: car)
                     .presentationDetents([.medium, .large])
             }
+            .errorAlert($saveError)
         }
     }
 
@@ -70,6 +75,10 @@ struct WishlistView: View {
             try modelContext.save()
         } catch {
             logger.error("Failed to mark car as found: \(error.localizedDescription, privacy: .public)")
+            saveError = ErrorAlert(
+                message: String(localized: "This car couldn’t be moved to your garage. Please try again.")
+            )
+            return
         }
         foundCar = car
     }
