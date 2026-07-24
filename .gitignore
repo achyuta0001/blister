@@ -13,5 +13,8 @@ xcuserdata/
 # macOS
 .DS_Store
 
+# Claude Code runtime
+.claude/
+
 # Misc
 *.log
