@@ -27,6 +27,9 @@ struct AddCarView: View {
     @State private var cleanupPreview: CleanupPreview?
     /// Non-nil when a save failed, so the user is told rather than the failure being swallowed.
     @State private var saveError: ErrorAlert?
+    /// Non-nil while the duplicate-colorway confirmation is showing; carries the `addAnother` flag of
+    /// the save the user tried, so confirming resumes the right save.
+    @State private var pendingDuplicateAddAnother: Bool?
 
     private let photoStore: PhotoStore = DocumentsPhotoStore.shared
     private let recognizer = CardTextRecognizer()
@@ -72,6 +75,20 @@ struct AddCarView: View {
                 )
             }
             .errorAlert($saveError)
+            .confirmationDialog(
+                String(localized: "You already own this colorway"),
+                isPresented: Binding(
+                    get: { pendingDuplicateAddAnother != nil },
+                    set: { presented in if !presented { pendingDuplicateAddAnother = nil } }
+                ),
+                titleVisibility: .visible,
+                presenting: pendingDuplicateAddAnother
+            ) { addAnother in
+                Button(String(localized: "Add anyway")) { performSave(addAnother: addAnother) }
+                Button(String(localized: "Cancel"), role: .cancel) {}
+            } message: { _ in
+                Text(String(localized: "A car with this casting and colorway is already in your garage. Add it anyway?"))
+            }
             .onChange(of: libraryItem) { _, newItem in
                 loadLibraryItem(newItem)
             }
@@ -343,7 +360,23 @@ struct AddCarView: View {
 
     // MARK: Actions
 
+    /// Entry point for both Save buttons. Warns (non-blocking) if an owned car with the same casting
+    /// and colorway already exists; otherwise saves straight through. Collectors do own multiples, so
+    /// this only confirms — it never blocks.
     private func save(addAnother: Bool) {
+        guard model.isValid else { return }
+        if DuplicateCarDetector.ownedDuplicateExists(
+            castingName: model.castingName,
+            colorway: model.colorway,
+            in: allCars
+        ) {
+            pendingDuplicateAddAnother = addAnother
+            return
+        }
+        performSave(addAnother: addAnother)
+    }
+
+    private func performSave(addAnother: Bool) {
         guard model.isValid else { return }
 
         var filenames: [String] = []
