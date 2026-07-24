@@ -126,13 +126,13 @@ final class StudioScene {
         turntable.addChild(card)
         turntable.addChild(reflection)
 
-        // Reflective studio floor (dark, low roughness for a subtle sheen) — static beneath everything.
+        // Reflective studio floor (dark, low roughness for a crisp sheen) — static beneath everything.
         let floorMesh = MeshResource.generatePlane(width: 3, depth: 3)
         let floor = ModelEntity(mesh: floorMesh,
                                 materials: [Self.solidMaterial(tint: UIColor(red: 0x1C / 255,
                                                                              green: 0x1C / 255,
                                                                              blue: 0x1C / 255, alpha: 1),
-                                                               roughness: 0.35, metallic: 0.0)])
+                                                               roughness: 0.16, metallic: 0.0)])
         floor.position = [0, -halfHeight, 0]
 
         // Soft contact shadow blob directly under the card.
@@ -141,10 +141,12 @@ final class StudioScene {
                                  materials: [Self.shadowMaterial(texture: shadowTexture)])
         shadow.position = [0, -halfHeight + 0.002, 0]
 
-        // Lighting rig.
-        let key = Self.directionalLight(intensity: 3200, from: [0.7, 0.9, 1.1])
-        let fill = Self.directionalLight(intensity: 900, from: [-0.9, 0.35, 0.8])
-        let rim = Self.directionalLight(intensity: 1100, from: [0.0, 0.5, -1.2])
+        // Lighting rig: a brighter key for a punchier read, a soft fill to open the shadows, and a
+        // pair of rims from behind either side to catch the glossy card + slab edges.
+        let key = Self.directionalLight(intensity: 4400, from: [0.7, 0.9, 1.1])
+        let fill = Self.directionalLight(intensity: 1000, from: [-0.9, 0.35, 0.8])
+        let rimLeft = Self.directionalLight(intensity: 1300, from: [-0.9, 0.5, -1.1])
+        let rimRight = Self.directionalLight(intensity: 1300, from: [0.9, 0.5, -1.1])
 
         camera.camera.fieldOfViewInDegrees = 38
 
@@ -160,7 +162,8 @@ final class StudioScene {
         root.addChild(shadow)
         root.addChild(key)
         root.addChild(fill)
-        root.addChild(rim)
+        root.addChild(rimLeft)
+        root.addChild(rimRight)
         root.addChild(camera)
 
         applyCamera()

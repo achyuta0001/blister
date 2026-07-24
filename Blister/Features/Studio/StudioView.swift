@@ -35,6 +35,7 @@ struct StudioView: View {
                     .tint(DesignTokens.accent)
             }
         }
+        .overlay { vignette }
         .overlay(alignment: .topTrailing) { doneButton }
         .task {
             guard scene == nil, !didFail else { return }
@@ -88,6 +89,14 @@ struct StudioView: View {
         RadialGradient(colors: [Color(white: 0.16), DesignTokens.background],
                        center: .center, startRadius: 0, endRadius: 520)
             .ignoresSafeArea()
+    }
+
+    /// Subtle darkening toward the corners so the lit card reads as the focus of the frame.
+    private var vignette: some View {
+        RadialGradient(colors: [.clear, .black.opacity(0.45)],
+                       center: .center, startRadius: 220, endRadius: 620)
+            .ignoresSafeArea()
+            .allowsHitTesting(false)
     }
 
     private var doneButton: some View {
