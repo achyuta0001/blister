@@ -23,7 +23,7 @@ final class SettingsModel {
                 named: "Blister-Collection.csv",
                 contents: Data(csv.utf8)
             )
-            let json = try CollectionExporter.jsonData(from: cars)
+            let json = try CollectionArchive(cars: cars).jsonData()
             jsonURL = try CollectionExporter.writeTemporaryFile(
                 named: "Blister-Collection.json",
                 contents: json

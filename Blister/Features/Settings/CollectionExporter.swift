@@ -1,12 +1,12 @@
 import Foundation
 import OSLog
 
-/// Builds shareable CSV and JSON exports of the collection (spec §6.6).
+/// Builds the shareable CSV export of the collection and writes export files to a temp directory
+/// (spec §6.6). The JSON snapshot is produced separately by ``CollectionArchive``.
 ///
 /// CSV is RFC 4180: a header row, fields quoted/escaped when they contain commas, quotes, or
 /// newlines, and money written as plain locale-independent decimals ("1200", "1200.5") so Numbers
-/// parses the columns as numbers rather than text. JSON encodes ``CarExportDTO`` values with
-/// ISO 8601 dates.
+/// parses the columns as numbers rather than text.
 enum CollectionExporter {
     private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "Blister",
                                       category: "Export")
@@ -50,16 +50,6 @@ enum CollectionExporter {
         }
         // RFC 4180 uses CRLF line endings; Numbers and Excel both accept them.
         return lines.joined(separator: "\r\n")
-    }
-
-    // MARK: - JSON
-
-    static func jsonData(from cars: [Car]) throws -> Data {
-        let dtos = cars.map(CarExportDTO.init)
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
-        encoder.dateEncodingStrategy = .iso8601
-        return try encoder.encode(dtos)
     }
 
     // MARK: - File writing
