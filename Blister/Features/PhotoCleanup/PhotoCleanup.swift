@@ -61,7 +61,11 @@ enum PhotoCleanup {
             return nil
         }
 
-        return composite(subject: subjectCG)
+        // Give the lifted subject a gentle enhancement pass so cleaned photos pop; fall back to the
+        // raw subject if the pass fails.
+        let enhanced = ImageEnhancer.enhanced(UIImage(cgImage: subjectCG))?.cgImage ?? subjectCG
+
+        return composite(subject: enhanced)
     }
 
     /// Draws the lifted subject on a dark studio backdrop with a soft contact shadow, auto-framed on
