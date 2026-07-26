@@ -1,5 +1,6 @@
 import Testing
 import CoreGraphics
+import UIKit
 @testable import Blister
 
 /// Pure crop-rect math for the saliency thumbnail cropper. All rects are top-left pixel space.
