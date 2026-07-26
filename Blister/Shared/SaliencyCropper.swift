@@ -22,7 +22,15 @@ enum SaliencyCropper {
         let imageSize = CGSize(width: cgImage.width, height: cgImage.height)
         guard imageSize.width > 0, imageSize.height > 0 else { return nil }
 
-        let crop = salientCropRect(for: cgImage, imageSize: imageSize, targetAspect: targetAspect)
+        // Everything below works in **raw buffer space** (`cgImage.cropping` and the re-tag on the
+        // way out both do), but Vision must still analyse the image the right way up — a sideways
+        // card is not what a viewer's attention lands on. So the orientation is handed to the
+        // request handler and its results are mapped back into buffer space, rather than paying for
+        // a full re-render of a photo we are only going to shrink to a 400px thumbnail.
+        let crop = salientCropRect(for: cgImage,
+                                   imageSize: imageSize,
+                                   orientation: image.imageOrientation,
+                                   targetAspect: targetAspect)
         let integral = crop.integral.intersection(CGRect(origin: .zero, size: imageSize))
         guard !integral.isNull, integral.width >= 1, integral.height >= 1,
               let cropped = cgImage.cropping(to: integral) else {
