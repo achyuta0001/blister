@@ -9,7 +9,7 @@ struct RootView: View {
     enum Tab: String, Hashable {
         case aisle, garage, wishlist, settings
 
-        /// Reads the starting tab from `BLISTER_START_TAB` (debug launch aid); defaults to Aisle.
+        /// Reads the starting tab from `BLISTER_START_TAB` (debug launch aid); defaults to Garage.
         static func fromLaunchEnvironment() -> Tab {
             #if DEBUG
             if let raw = ProcessInfo.processInfo.environment["BLISTER_START_TAB"],
