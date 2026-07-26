@@ -1,8 +1,9 @@
 import SwiftUI
 
-/// Header strip: collection count and total spend in INR (spec §6.2). Reflects the cars currently
-/// visible, so it stays truthful while filters narrow the grid. Left-aligned, muted, no chrome
-/// (spec §7).
+/// Header strip: collection count, total spend in INR, and the add-a-car action (spec §6.2). The
+/// counts reflect the cars currently visible, so the strip stays truthful while filters narrow the
+/// grid. Muted and chrome-free (spec §7) — it stands in for a navigation bar, which the Garage hides
+/// so the grid starts directly under the status bar.
 struct GarageHeader: View {
     let count: Int
     let totalSpend: Decimal
