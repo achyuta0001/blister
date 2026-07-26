@@ -185,3 +185,6 @@ struct SaliencyCropperTests {
         #expect(difference < 0.05, "orientation-dependent crop: differ by \(difference)")
     }
 }
+
+/// Anchor for `Bundle(for:)` so the test bundle is found by class, not by a hardcoded identifier.
+private final class SaliencyCropperTestsBundleToken {}
