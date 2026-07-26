@@ -25,6 +25,11 @@ struct PhotoCleanupSmokeTest {
 
         let docs = try documentsDirectory()
         try original.pngData()?.write(to: docs.appendingPathComponent("cleanup_before.png"))
+        if let upright = ImageOrientation.uprighted(original).cgImage,
+           let card = CardDetector.croppedCard(from: upright),
+           let data = UIImage(cgImage: card).pngData() {
+            try data.write(to: docs.appendingPathComponent("cleanup_card_crop.png"))
+        }
         if let cleaned, let data = cleaned.pngData() {
             try data.write(to: docs.appendingPathComponent("cleanup_after.png"))
         }
