@@ -28,7 +28,7 @@ struct CardTextRecognizer: Sendable {
             request.recognitionLevel = .accurate
             request.usesLanguageCorrection = true
 
-            let observations = try await request.perform(on: cgImage)
+            let observations = try await request.perform(on: cgImage, orientation: orientation)
 
             let lines: [RecognizedLine] = observations.compactMap { observation in
                 guard let candidate = observation.topCandidates(1).first else { return nil }
