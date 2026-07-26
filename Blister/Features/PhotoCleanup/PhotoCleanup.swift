@@ -33,7 +33,13 @@ enum PhotoCleanup {
         // re-wrap inside. Keeping the upright re-render in here also keeps it off the main actor.
         let orientation = image.imageOrientation
         let data = await Task.detached(priority: .userInitiated) { () -> Data? in
-            process(cgImage: source)
+            // Bake the capture rotation into the pixels FIRST. A phone portrait shot is a landscape
+            // buffer tagged `.right`, and every stage below reads raw pixels — Vision, Core Image
+            // and the composite renderer all ignore `imageOrientation` — so skipping this makes the
+            // whole pipeline analyse, and then permanently bake in, a sideways card.
+            let wrapped = UIImage(cgImage: source, scale: 1, orientation: orientation)
+            guard let upright = ImageOrientation.uprighted(wrapped).cgImage else { return nil }
+            return process(cgImage: upright)
         }.value
         guard let data else { return nil }
         return UIImage(data: data)
