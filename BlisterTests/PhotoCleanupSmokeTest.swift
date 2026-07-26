@@ -16,8 +16,8 @@ import UIKit
 struct PhotoCleanupSmokeTest {
 
     @Test func liftsCarOntoStudioBackdrop() async throws {
-        let bundle = Bundle(identifier: "com.blister.app.BlisterTests")
-        let url = try #require(bundle?.url(forResource: "car_test", withExtension: "jpg"),
+        let bundle = Bundle(for: PhotoCleanupSmokeTestBundleToken.self)
+        let url = try #require(bundle.url(forResource: "car_test", withExtension: "jpg"),
                                "car_test.jpg missing from test bundle")
         let original = try #require(UIImage(contentsOfFile: url.path), "could not decode test image")
 
