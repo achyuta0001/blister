@@ -49,6 +49,6 @@ struct GarageHeader: View {
 }
 
 #Preview {
-    GarageHeader(count: 10, totalSpend: 12450)
+    GarageHeader(count: 10, totalSpend: 12450, onAddCar: {})
         .preferredColorScheme(.dark)
 }
