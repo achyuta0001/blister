@@ -62,17 +62,10 @@ struct GarageView: View {
                 .padding(DesignTokens.spacingS)
             }
             .background(DesignTokens.background)
-            .navigationTitle(String(localized: "Garage"))
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        isAddingCar = true
-                    } label: {
-                        Label(String(localized: "Add Car"), systemImage: "plus")
-                    }
-                }
-            }
+            // No navigation bar: its only content was the title "Garage", which the tab bar already
+            // says, and it cost ~96pt of empty space above the grid. The header strip below carries
+            // the counts and the add action instead (mirrors AisleCheckView).
+            .toolbar(.hidden, for: .navigationBar)
             .sheet(isPresented: $isAddingCar) {
                 AddCarView()
             }
