@@ -48,6 +48,20 @@ enum PhotoCleanup {
     /// Runs isolation + composite off the main actor. Returns PNG data (`Sendable`) so nothing
     /// non-`Sendable` crosses back to the caller. `cgImage` must already be upright.
     private static func process(cgImage: CGImage) -> Data? {
+        if let card = CardDetector.croppedCard(from: cgImage) {
+            logger.debug("Cleanup used the card-crop path")
+            let enhanced = ImageEnhancer.enhanced(UIImage(cgImage: card))?.cgImage ?? card
+            return composite(subject: enhanced)
+        }
+        logger.debug("No card found — falling back to the subject lift")
+        return liftedSubject(cgImage: cgImage)
+    }
+
+    /// Fallback isolation for loose (uncarded) castings: Vision's foreground-instance mask.
+    ///
+    /// Note this cannot be used for carded photos — a hand holding a card is typically a single
+    /// connected instance with it, so the mask keeps the hand too (see ``CardDetector``).
+    private static func liftedSubject(cgImage: CGImage) -> Data? {
         let ciImage = CIImage(cgImage: cgImage)
         let handler = VNImageRequestHandler(ciImage: ciImage, options: [:])
         let request = VNGenerateForegroundInstanceMaskRequest()
