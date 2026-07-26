@@ -43,6 +43,7 @@ enum SaliencyCropper {
     /// pixel space **of the raw buffer**, having analysed the image in its upright orientation.
     private static func salientCropRect(for cgImage: CGImage,
                                         imageSize: CGSize,
+                                        orientation: UIImage.Orientation,
                                         targetAspect: CGFloat) -> CGRect {
         let request = VNGenerateAttentionBasedSaliencyImageRequest()
         let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
