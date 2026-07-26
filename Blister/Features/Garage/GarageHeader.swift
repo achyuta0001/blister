@@ -16,10 +16,28 @@ struct GarageHeader: View {
     }
 
     var body: some View {
-        HStack(alignment: .firstTextBaseline) {
-            Text(countText)
-            Spacer(minLength: DesignTokens.spacingM)
-            Text(CurrencyFormat.inr(totalSpend))
+        HStack(spacing: DesignTokens.spacingM) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(countText)
+                Spacer(minLength: DesignTokens.spacingM)
+                Text(CurrencyFormat.inr(totalSpend))
+            }
+            .font(.footnote)
+            .foregroundStyle(DesignTokens.secondaryText)
+            .accessibilityElement(children: .combine)
+
+            Button(action: onAddCar) {
+                Label(String(localized: "Add Car"), systemImage: "plus")
+                    .labelStyle(.iconOnly)
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(DesignTokens.primaryText)
+                    .frame(
+                        minWidth: DesignTokens.minTapTarget,
+                        minHeight: DesignTokens.minTapTarget
+                    )
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
         }
         .font(.footnote)
         .foregroundStyle(DesignTokens.secondaryText)
