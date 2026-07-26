@@ -45,8 +45,8 @@ enum PhotoCleanup {
         return UIImage(data: data)
     }
 
-    /// Runs the Vision lift + composite off the main actor. Returns PNG data (`Sendable`) so nothing
-    /// non-`Sendable` crosses back to the caller.
+    /// Runs isolation + composite off the main actor. Returns PNG data (`Sendable`) so nothing
+    /// non-`Sendable` crosses back to the caller. `cgImage` must already be upright.
     private static func process(cgImage: CGImage) -> Data? {
         let ciImage = CIImage(cgImage: cgImage)
         let handler = VNImageRequestHandler(ciImage: ciImage, options: [:])
