@@ -1,8 +1,10 @@
 import SwiftUI
 
-/// Top-level tab shell. Aisle Check is first — it is the one moment the app exists for and must be
-/// reachable in one tap from anywhere (spec §6.1). Each tab body is owned by one feature agent;
-/// this file is a frozen contract, so agents fill in their view rather than edit this shell.
+/// Top-level tab shell. Aisle Check sits first in the tab bar — it is the one moment the app exists
+/// for and must be reachable in one tap from anywhere (spec §6.1) — but the app *opens* on Garage,
+/// the screen people return to between store trips. Tab order and startup tab are independent; keep
+/// the order as-is. Each tab body is owned by one feature agent, so agents fill in their view rather
+/// than restructure this shell.
 struct RootView: View {
     enum Tab: String, Hashable {
         case aisle, garage, wishlist, settings
