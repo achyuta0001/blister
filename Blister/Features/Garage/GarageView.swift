@@ -71,7 +71,11 @@ struct GarageView: View {
             }
             .safeAreaInset(edge: .top, spacing: 0) {
                 VStack(spacing: 0) {
-                    GarageHeader(count: visibleCars.count, totalSpend: totalSpend)
+                    GarageHeader(
+                        count: visibleCars.count,
+                        totalSpend: totalSpend,
+                        onAddCar: { isAddingCar = true }
+                    )
                     if !owned.isEmpty {
                         GarageFilterBar(
                             filters: filters,
