@@ -23,7 +23,7 @@ struct PhotoCleanupSmokeTest {
 
         let cleaned = await PhotoCleanup.cleaned(original)
 
-        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let docs = try documentsDirectory()
         try original.pngData()?.write(to: docs.appendingPathComponent("cleanup_before.png"))
         if let cleaned, let data = cleaned.pngData() {
             try data.write(to: docs.appendingPathComponent("cleanup_after.png"))
