@@ -86,6 +86,7 @@ struct GarageFilterBar: View {
                     Text(hunt.displayName).tag(HuntStatus?.some(hunt))
                 }
             } label: { EmptyView() }
+            huntExplainer
         } label: {
             GarageChipLabel(
                 title: filters.huntStatus?.displayName ?? String(localized: "Hunt"),
