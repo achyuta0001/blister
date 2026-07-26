@@ -46,7 +46,9 @@ enum SaliencyCropper {
                                         orientation: UIImage.Orientation,
                                         targetAspect: CGFloat) -> CGRect {
         let request = VNGenerateAttentionBasedSaliencyImageRequest()
-        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+        let handler = VNImageRequestHandler(cgImage: cgImage,
+                                            orientation: ImageOrientation.cgOrientation(orientation),
+                                            options: [:])
         do {
             try handler.perform([request])
         } catch {
