@@ -279,18 +279,10 @@ final class StudioScene {
 
     // MARK: - Texture synthesis (Core Graphics)
 
-    /// Orientation-normalised, top-left-origin `CGImage` (handles EXIF rotation).
+    /// Orientation-normalised, top-left-origin `CGImage` (handles EXIF rotation). Delegates the
+    /// upright re-render to ``ImageOrientation`` so the pipeline has one copy of that logic.
     private static func normalizedCGImage(from image: UIImage) -> CGImage? {
-        let size = image.size
-        guard size.width > 0, size.height > 0 else { return image.cgImage }
-        let format = UIGraphicsImageRendererFormat.default()
-        format.scale = 1
-        format.opaque = false
-        let renderer = UIGraphicsImageRenderer(size: size, format: format)
-        let rendered = renderer.image { _ in
-            image.draw(in: CGRect(origin: .zero, size: size))
-        }
-        return rendered.cgImage
+        ImageOrientation.uprighted(image).cgImage ?? image.cgImage
     }
 
     /// Vertically-mirrored copy of the photo with a top-to-bottom alpha fade, for the floor reflection.
