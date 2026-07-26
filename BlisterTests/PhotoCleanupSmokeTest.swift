@@ -68,4 +68,7 @@ struct PhotoCleanupSmokeTest {
         try #require(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first)
     }
 }
+
+/// Anchor for `Bundle(for:)` so the test bundle is found by class, not by a hardcoded identifier.
+private final class PhotoCleanupSmokeTestBundleToken {}
 #endif
