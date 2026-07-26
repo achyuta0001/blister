@@ -62,8 +62,7 @@ enum SaliencyCropper {
             return centerCropRect(imageSize: imageSize, targetAspect: targetAspect)
         }
 
-        // Union every salient object so the whole card stays in frame. Vision boxes are normalized
-        // with a bottom-left origin; convert to top-left pixel space.
+        // Union every salient object so the whole card stays in frame.
         var union = objects[0].boundingBox
         for object in objects.dropFirst() { union = union.union(object.boundingBox) }
         let pixel = VNImageRectForNormalizedRect(union, cgImage.width, cgImage.height)
