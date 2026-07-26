@@ -23,7 +23,7 @@ struct RootView: View {
 
     @State private var selection: Tab
 
-    init(initialTab: Tab = .aisle) {
+    init(initialTab: Tab = .garage) {
         _selection = State(initialValue: initialTab)
     }
 
