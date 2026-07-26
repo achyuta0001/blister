@@ -39,10 +39,9 @@ struct GarageHeader: View {
             }
             .buttonStyle(.plain)
         }
-        .font(.footnote)
-        .foregroundStyle(DesignTokens.secondaryText)
-        .padding(.horizontal, DesignTokens.spacingM)
-        .padding(.top, DesignTokens.spacingS)
+        .padding(.leading, DesignTokens.spacingM)
+        .padding(.trailing, DesignTokens.spacingS)
+        .padding(.top, DesignTokens.spacingXS)
         .padding(.bottom, DesignTokens.spacingXS)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(DesignTokens.background)
