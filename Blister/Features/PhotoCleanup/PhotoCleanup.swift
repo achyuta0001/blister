@@ -28,7 +28,10 @@ enum PhotoCleanup {
 
     static func cleaned(_ image: UIImage) async -> UIImage? {
         guard let source = image.cgImage else { return nil }
-        // CGImage is immutable and thread-safe (Sendable), so it's safe to hand to the detached task.
+        // CGImage is immutable and thread-safe (Sendable) and `UIImage.Orientation` is a plain enum,
+        // so both cross into the detached task safely — `UIImage` itself does not, hence the
+        // re-wrap inside. Keeping the upright re-render in here also keeps it off the main actor.
+        let orientation = image.imageOrientation
         let data = await Task.detached(priority: .userInitiated) { () -> Data? in
             process(cgImage: source)
         }.value
