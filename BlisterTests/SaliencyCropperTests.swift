@@ -74,4 +74,114 @@ struct SaliencyCropperTests {
         #expect(SaliencyCropper.cropRect(salientRect: .zero, imageSize: image, targetAspect: 1)
                 == CGRect(origin: .zero, size: image))
     }
+
+    // MARK: bufferCropRect — Vision-normalized box → raw-buffer crop rect
+    //
+    // These are the real cover for the orientation fix. They call the pure mapping directly, so
+    // they assert the exact math that was wrong **without needing the saliency model to run** —
+    // `VNGenerateAttentionBasedSaliencyImageRequest` is ML-backed and cannot build an inference
+    // context in the simulator ("Failed to create espresso context"), which is also where CI runs.
+    // Do not rewrite these to go through `centeredCrop`: that test can only be meaningful on real
+    // hardware and would fail in CI.
+
+    @Test func mapsAnOrientedSalientBoxOntoTheRawBufferForAnUprightPhoto() {
+        // Portrait 800×1200 buffer, no rotation tag: Vision's frame *is* the buffer's frame.
+        let crop = SaliencyCropper.bufferCropRect(
+            salientNormalizedRect: CGRect(x: 0.3, y: 0.25, width: 0.4, height: 0.5),
+            imageSize: CGSize(width: 800, height: 1200),
+            orientation: .up,
+            targetAspect: 1
+        )
+        // Salient box is 320×600 at top-left (240, 300); the square that contains it is 600×600
+        // centred on it.
+        #expect(crop == CGRect(x: 100, y: 300, width: 600, height: 600))
+    }
+
+    @Test func mapsAnOrientedSalientBoxOntoTheRawBufferForARightTaggedCapture() {
+        // Same scene, but stored the way a phone hands it over: a landscape 1200×800 buffer tagged
+        // `.right`. Vision analysed the *upright* 800×1200 image, so it reports the same normalized
+        // box as above — and the crop must still land on the subject in the sideways buffer.
+        let crop = SaliencyCropper.bufferCropRect(
+            salientNormalizedRect: CGRect(x: 0.3, y: 0.25, width: 0.4, height: 0.5),
+            imageSize: CGSize(width: 1200, height: 800),
+            orientation: .right,
+            targetAspect: 1
+        )
+        #expect(crop == CGRect(x: 300, y: 100, width: 600, height: 600))
+    }
+
+    @Test func theTwoCropsDescribeTheSamePixelsOnceRotationIsUndone() {
+        // The point of the two cases above, made explicit. The `.right` buffer is the upright one
+        // rotated 90° counter-clockwise, which maps top-left point (x, y) → (y, 800 - x). Applying
+        // that to the upright crop must reproduce the tagged crop exactly — if the orientation were
+        // dropped, the tagged crop would land somewhere else entirely.
+        let upright = SaliencyCropper.bufferCropRect(
+            salientNormalizedRect: CGRect(x: 0.3, y: 0.25, width: 0.4, height: 0.5),
+            imageSize: CGSize(width: 800, height: 1200), orientation: .up, targetAspect: 1
+        )
+        let tagged = SaliencyCropper.bufferCropRect(
+            salientNormalizedRect: CGRect(x: 0.3, y: 0.25, width: 0.4, height: 0.5),
+            imageSize: CGSize(width: 1200, height: 800), orientation: .right, targetAspect: 1
+        )
+        let rotated = CGRect(x: upright.minY, y: 800 - upright.maxX,
+                             width: upright.height, height: upright.width)
+        #expect(rotated == tagged)
+    }
+
+    @Test func dropsTheOrientationOnlyWhenThereIsNoneToDrop() {
+        // A `.up` mapping must be a plain scale-and-flip, i.e. unchanged by the buffer remap.
+        let box = CGRect(x: 0.1, y: 0.1, width: 0.2, height: 0.2)
+        let size = CGSize(width: 500, height: 500)
+        // Square image + square target: the crop is just the salient box in top-left pixels.
+        #expect(SaliencyCropper.bufferCropRect(salientNormalizedRect: box, imageSize: size,
+                                               orientation: .up, targetAspect: 1)
+                == CGRect(x: 50, y: 350, width: 100, height: 100))
+    }
+
+    @Test func bufferCropRectWithDegenerateImageReturnsImageRect() {
+        #expect(SaliencyCropper.bufferCropRect(salientNormalizedRect: .zero, imageSize: .zero,
+                                               orientation: .right, targetAspect: 1) == .zero)
+    }
+
+    // MARK: End-to-end — orientation
+    //
+    // Best-effort companion to the pure tests above: it exercises the whole `centeredCrop` plumbing
+    // (Vision call, buffer-space crop, orientation re-tag) on a real photo. Whether Vision's
+    // saliency model actually produced a map is *printed, not asserted*, because it cannot run in
+    // the simulator or in CI — when it falls back to a centre crop this still checks that buffer-
+    // space cropping and re-tagging are orientation-consistent, but the strong assertion lives in
+    // `mapsAnOrientedSalientBoxOntoTheRawBuffer…` above.
+
+    /// The cropper works in raw buffer space but asks Vision to analyse the *oriented* image, so a
+    /// capture tagged `.right` must display the same picture as the already-upright original.
+    @Test func cropIsInvariantToTheCaptureOrientationTag() throws {
+        let bundle = Bundle(for: SaliencyCropperTestsBundleToken.self)
+        let url = try #require(bundle.url(forResource: "car_test", withExtension: "jpg"))
+        let photo = try #require(UIImage(contentsOfFile: url.path))
+        let capture = try #require(SyntheticCardScene.asRightTaggedCapture(photo))
+
+        let straight = try #require(SaliencyCropper.centeredCrop(photo, targetAspect: 1))
+        let tagged = try #require(SaliencyCropper.centeredCrop(capture, targetAspect: 1))
+        #expect(tagged.imageOrientation == .right, "the crop should keep the source's tag")
+
+        // Did Vision's saliency actually drive the crop, or did it fall back to the centre? A centre
+        // crop is orientation-symmetric by construction, so the invariance check is only strong
+        // evidence in the first case.
+        let source = try #require(photo.cgImage)
+        let centre = SaliencyCropper.centerCropRect(
+            imageSize: CGSize(width: source.width, height: source.height), targetAspect: 1
+        )
+        let straightBuffer = try #require(straight.cgImage)
+        let centreCrop = try #require(source.cropping(to: centre.integral))
+        let vsCentre = SyntheticCardScene.meanChannelDifference(straightBuffer, centreCrop)
+        print("SALIENCY_PATH_EXERCISED=\(vsCentre > 0.01) (vsCentre=\(vsCentre))")
+
+        // Compare what each one *displays*, not the raw buffers.
+        let expected = try #require(ImageOrientation.uprighted(straight).cgImage)
+        let actual = try #require(ImageOrientation.uprighted(tagged).cgImage)
+        #expect(actual.width == expected.width && actual.height == expected.height,
+                "\(actual.width)x\(actual.height) vs \(expected.width)x\(expected.height)")
+        let difference = SyntheticCardScene.meanChannelDifference(actual, expected)
+        #expect(difference < 0.05, "orientation-dependent crop: differ by \(difference)")
+    }
 }
