@@ -7,6 +7,7 @@ import SwiftUI
 struct GarageHeader: View {
     let count: Int
     let totalSpend: Decimal
+    let onAddCar: () -> Void
 
     private var countText: String {
         count == 1
