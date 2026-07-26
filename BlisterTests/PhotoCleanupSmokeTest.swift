@@ -36,5 +36,36 @@ struct PhotoCleanupSmokeTest {
         print("PHOTOCLEANUP_DOCS_DIR=\(docs.path)")
         print("PHOTOCLEANUP_RESULT=\(cleaned == nil ? "nil-no-subject" : "composited")")
     }
+
+    /// The carded-and-hand-held case the card-crop path exists for. Runs end to end in the
+    /// simulator and writes before / card-crop / after so the hand removal can be seen.
+    @Test func cropsAHandHeldCardOntoStudioBackdrop() async throws {
+        let scene = SyntheticCardScene.card(degrees: 7, withHands: true)
+        let upright = try #require(scene.image.cgImage)
+
+        let card = try #require(CardDetector.croppedCard(from: upright),
+                                "card detection failed on the synthetic hand-held card")
+        let cleaned = await PhotoCleanup.cleaned(scene.image)
+
+        let docs = try documentsDirectory()
+        try scene.image.pngData()?.write(to: docs.appendingPathComponent("carded_before.png"))
+        try UIImage(cgImage: card).pngData()?
+            .write(to: docs.appendingPathComponent("carded_card_crop.png"))
+        if let cleaned, let data = cleaned.pngData() {
+            try data.write(to: docs.appendingPathComponent("carded_after.png"))
+        }
+
+        let before = SyntheticCardScene.skinFraction(of: upright)
+        let after = SyntheticCardScene.skinFraction(of: card)
+        print("PHOTOCLEANUP_CARDED_SKIN before=\(before) after=\(after)")
+        print("PHOTOCLEANUP_CARDED_RESULT=\(cleaned == nil ? "nil" : "composited")")
+
+        #expect(cleaned != nil, "the card path should always produce a composite")
+        #expect(after < before / 4, "the crop should have removed most of the hand")
+    }
+
+    private func documentsDirectory() throws -> URL {
+        try #require(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first)
+    }
 }
 #endif
