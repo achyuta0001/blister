@@ -65,7 +65,35 @@ enum SaliencyCropper {
         // Union every salient object so the whole card stays in frame.
         var union = objects[0].boundingBox
         for object in objects.dropFirst() { union = union.union(object.boundingBox) }
-        let pixel = VNImageRectForNormalizedRect(union, cgImage.width, cgImage.height)
+        return bufferCropRect(salientNormalizedRect: union,
+                              imageSize: imageSize,
+                              orientation: orientation,
+                              targetAspect: targetAspect)
+    }
+
+    /// Turns a Vision-normalized salient box into a crop rect in **raw-buffer top-left pixel
+    /// space**, which is where ``centeredCrop(_:targetAspect:)`` does its cropping.
+    ///
+    /// Three coordinate systems meet here, which is why it is split out as a pure function rather
+    /// than left inline: Vision reports normalized `0...1` boxes with a **bottom-left** origin, in
+    /// the ***oriented*** frame it was asked to analyse — not the raw buffer's. So the box is first
+    /// rotated back into the buffer's normalized frame, then scaled to pixels, then flipped to
+    /// top-left. Getting this wrong sends the thumbnail crop to the wrong part of the photo.
+    ///
+    /// Pure and deterministic — no Vision — so the mapping is unit-testable even where the saliency
+    /// model itself cannot run (see ``SaliencyCropperTests``).
+    static func bufferCropRect(salientNormalizedRect: CGRect,
+                               imageSize: CGSize,
+                               orientation: UIImage.Orientation,
+                               targetAspect: CGFloat) -> CGRect {
+        guard imageSize.width > 0, imageSize.height > 0 else {
+            return CGRect(origin: .zero, size: imageSize)
+        }
+        let inBuffer = ImageOrientation.bufferNormalizedRect(salientNormalizedRect,
+                                                             orientation: orientation)
+        let pixel = VNImageRectForNormalizedRect(inBuffer,
+                                                 Int(imageSize.width),
+                                                 Int(imageSize.height))
         let topLeft = CGRect(x: pixel.minX,
                              y: imageSize.height - pixel.maxY,
                              width: pixel.width,
