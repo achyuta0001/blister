@@ -62,6 +62,22 @@ struct GarageFilterBar: View {
         .accessibilityLabel(Text(String(localized: "Filter by brand")))
     }
 
+    /// Nothing else in the app says what a Treasure Hunt is, so the filter that sorts by them says
+    /// it. A disabled row, not a bare `Text` or a `Section` footer: a `Menu` is backed by a `UIMenu`,
+    /// which lays out only real menu items. It also clips a row to two narrow lines — measured at
+    /// roughly 40 characters — so the wording is kept short enough to survive intact.
+    private var huntExplainer: some View {
+        Button {} label: {
+            Label(
+                String(localized: "TH / $TH: rare cars hidden in cases."),
+                systemImage: "info.circle"
+            )
+            .font(.caption)
+            .foregroundStyle(DesignTokens.secondaryText)
+        }
+        .disabled(true)
+    }
+
     private var huntChip: some View {
         Menu {
             Picker(selection: $filters.huntStatus) {
