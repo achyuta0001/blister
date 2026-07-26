@@ -117,16 +117,6 @@ struct DocumentsPhotoStore: PhotoStore {
         return thumbsDirectory.appendingPathComponent("\(base).jpg")
     }
 
-    /// Redraws the image so its pixels are upright (`.up`). Camera captures otherwise carry an
-    /// orientation flag that `cgImage` and raw HEIC encoding ignore.
-    private static func normalizedUp(_ image: UIImage) -> UIImage {
-        guard image.imageOrientation != .up else { return image }
-        let format = UIGraphicsImageRendererFormat.default()
-        format.scale = image.scale
-        let renderer = UIGraphicsImageRenderer(size: image.size, format: format)
-        return renderer.image { _ in image.draw(in: CGRect(origin: .zero, size: image.size)) }
-    }
-
     /// Scales `image` so its longest edge is at most `maxEdge` points (400px thumbnails, spec §9).
     private static func thumbnail(from image: UIImage, maxEdge: CGFloat) -> UIImage {
         let longest = max(image.size.width, image.size.height)
