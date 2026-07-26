@@ -56,7 +56,7 @@ struct DocumentsPhotoStore: PhotoStore {
         try FileManager.default.createDirectory(at: thumbsDirectory, withIntermediateDirectories: true)
 
         // Bake in the capture orientation so the on-disk pixels stand upright.
-        let upright = Self.normalizedUp(image)
+        let upright = ImageOrientation.uprighted(image)
 
         guard let cgImage = upright.cgImage, let heic = Self.heicData(from: cgImage) else {
             throw PhotoStoreError.encodingFailed
