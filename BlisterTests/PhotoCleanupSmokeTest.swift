@@ -3,9 +3,16 @@ import Testing
 import UIKit
 @testable import Blister
 
-/// DEBUG-only smoke test: runs the real Vision subject-lift + composite on a bundled car photo and
-/// writes the before/after PNGs to the simulator's Documents dir so a human can eyeball the result.
-/// Not a correctness assertion (Vision quality varies by device/OS) — a manual inspection harness.
+/// DEBUG-only smoke test: runs the real cleanup pipeline and writes its stages to the simulator's
+/// Documents dir so a human can eyeball the result. Not a correctness assertion (Vision quality
+/// varies by device/OS) — a manual inspection harness.
+///
+/// Two fixtures, because the two isolation paths have different simulator support:
+/// - `car_test.jpg`, a loose car with no card → falls through to
+///   `VNGenerateForegroundInstanceMaskRequest`, which cannot build an inference context in the
+///   simulator (returns nil by design; verify on a device).
+/// - a synthetic hand-held card → takes the `CardDetector` path, which is classical CV and **does**
+///   run in the simulator, so the card-crop intermediate is real output.
 struct PhotoCleanupSmokeTest {
 
     @Test func liftsCarOntoStudioBackdrop() async throws {
