@@ -17,6 +17,11 @@ struct CardTextRecognizer: Sendable {
         // `CGImage` is immutable and thread-safe, so it can cross the actor/thread boundary that the
         // Vision async request performs internally without introducing a data race.
         guard let cgImage = image.cgImage else { return [] }
+        // `cgImage` is the *raw* buffer: a phone portrait shot is landscape pixels tagged `.right`,
+        // and Vision would otherwise try to read a sideways card. Hand it the EXIF orientation
+        // instead of re-rendering — text recognition only needs to know which way is up, and the
+        // bounding boxes below are used as relative size hints, not absolute positions.
+        let orientation = ImageOrientation.cgOrientation(image.imageOrientation)
 
         do {
             var request = RecognizeTextRequest()
