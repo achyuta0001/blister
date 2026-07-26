@@ -45,7 +45,6 @@ struct GarageHeader: View {
         .padding(.bottom, DesignTokens.spacingXS)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(DesignTokens.background)
-        .accessibilityElement(children: .combine)
     }
 }
 
