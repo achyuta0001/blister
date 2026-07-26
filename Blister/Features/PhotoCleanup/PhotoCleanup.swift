@@ -5,8 +5,20 @@ import CoreImage.CIFilterBuiltins
 import os
 
 /// On-device photo cleanup (**frozen contract** — the Add Car / Edit UIs code against `cleaned(_:)`).
-/// Lifts the car off its background with Vision and composites it onto a clean studio backdrop with a
-/// soft contact shadow, so a messy phone snap reads like a catalogue shot.
+/// Isolates the casting from its surroundings with Vision and composites it onto a clean studio
+/// backdrop with a soft contact shadow, so a messy phone snap reads like a catalogue shot.
+///
+/// Two isolation strategies, in order:
+/// 1. **Card detection** (``CardDetector``) — most photos here are of a *carded* casting held in one
+///    hand. Detecting the card's quadrilateral and perspective-correcting it squares the card up and
+///    clips to its edges in one step, so the fingers above it and the hand below it fall outside the
+///    frame. Subject-lifting cannot do this: a hand gripping a card is usually the *same* connected
+///    foreground instance as the card, so no amount of per-instance filtering separates them.
+/// 2. **Subject lift** (`VNGenerateForegroundInstanceMaskRequest`) — the fallback for loose
+///    (uncarded) castings, where there is no rectangle to find.
+///
+/// Both paths feed the same ``ImageEnhancer`` pass and the same ``composite(subject:)``, so cleaned
+/// photos share one look regardless of which one ran.
 ///
 /// Fully on-device, Apple frameworks only. Returns `nil` (callers keep the original) when there's no
 /// subject or on any failure — it never throws or crashes.
