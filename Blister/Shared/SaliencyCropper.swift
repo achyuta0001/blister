@@ -40,7 +40,7 @@ enum SaliencyCropper {
     }
 
     /// Runs Vision saliency (falling back to a centre crop) and returns the crop rect in top-left
-    /// pixel space.
+    /// pixel space **of the raw buffer**, having analysed the image in its upright orientation.
     private static func salientCropRect(for cgImage: CGImage,
                                         imageSize: CGSize,
                                         targetAspect: CGFloat) -> CGRect {
