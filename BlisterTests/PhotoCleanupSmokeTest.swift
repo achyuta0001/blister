@@ -64,6 +64,59 @@ struct PhotoCleanupSmokeTest {
         #expect(after < before / 4, "the crop should have removed most of the hand")
     }
 
+    /// The grey-tint fix: a cleaned card is the **card**, not a card pasted onto a studio backdrop.
+    ///
+    /// The composite fits its subject into a *square* canvas with a 14% margin, so a portrait card
+    /// came back 1:1 with roughly 55% of the file given over to a dark grey panel — plus a baked
+    /// reflection that ``StudioScene`` then drew a second copy of. Both assertions below fail on that
+    /// old output: the aspect was 1.0 and the corners were backdrop.
+    @Test func aCleanedCardKeepsItsOwnAspectAndHasNoBackdropMargin() async throws {
+        // 420 × 620 card ⇒ aspect ≈ 0.677, comfortably portrait.
+        let scene = SyntheticCardScene.card(cardSize: CGSize(width: 420, height: 620),
+                                            degrees: 7, withHands: true)
+        let cleaned = try #require(await PhotoCleanup.cleaned(scene.image),
+                                   "the card path should always produce an image")
+        let buffer = try #require(cleaned.cgImage)
+
+        let aspect = CGFloat(buffer.width) / CGFloat(buffer.height)
+        print("PHOTOCLEANUP_CARD_ASPECT=\(aspect) (\(buffer.width)x\(buffer.height))")
+        #expect(buffer.height > buffer.width, "a portrait card must stay portrait, not go square")
+        #expect(abs(aspect - 420.0 / 620.0) < 0.12, "aspect \(aspect) is not the card's")
+
+        // Every corner is card, not backdrop. The composite's pool is clamped to 0.12...0.26
+        // brightness and its edge is 0x1C (≈0.11); the synthetic card is 0.93 white.
+        let corners = SyntheticCardScene.cornerBrightness(of: buffer)
+        print("PHOTOCLEANUP_CARD_CORNERS=\(corners)")
+        #expect(corners.count == 4)
+        #expect(corners.allSatisfy { $0 > 0.6 },
+                "corners \(corners) look like a studio backdrop, not the card")
+    }
+
+    /// The loose-car path is unchanged: a lifted cutout still lands on the square studio backdrop.
+    ///
+    /// Driven through ``PhotoCleanup/studioComposite(lifted:)`` rather than `cleaned(_:)` because the
+    /// step above it, `VNGenerateForegroundInstanceMaskRequest`, cannot build an inference context in
+    /// the simulator — so an end-to-end run here would only ever prove that Vision is absent.
+    @Test func aLiftedSubjectStillGetsTheStudioComposite() throws {
+        let subject = try #require(SyntheticCardScene.liftedSubject().cgImage)
+        let data = try #require(PhotoCleanup.studioComposite(lifted: subject),
+                                "the lift path should still composite")
+        let composite = try #require(UIImage(data: data)?.cgImage)
+
+        let docs = try documentsDirectory()
+        try data.write(to: docs.appendingPathComponent("lifted_after.png"))
+
+        #expect(composite.width == composite.height, "the composite canvas is square")
+        #expect(composite.width > subject.width, "the subject should sit inside a margin")
+
+        // The margin is the point: dark backdrop in every corner, which is exactly what the card
+        // path must NOT have.
+        let corners = SyntheticCardScene.cornerBrightness(of: composite)
+        print("PHOTOCLEANUP_LIFTED_CORNERS=\(corners)")
+        #expect(corners.allSatisfy { $0 < 0.35 },
+                "corners \(corners) should be studio backdrop")
+    }
+
     private func documentsDirectory() throws -> URL {
         try #require(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first)
     }
