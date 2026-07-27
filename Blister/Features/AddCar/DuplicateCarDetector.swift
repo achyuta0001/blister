@@ -15,10 +15,15 @@ import Foundation
 /// with no colorway are treated as the same colorway.
 enum DuplicateCarDetector {
 
-    /// True when `car` is owned and shares a normalised casting name *and* colorway with the given
-    /// values. Wanted (wishlist) cars never count as duplicates.
-    static func isDuplicate(castingName: String, colorway: String?, of car: Car) -> Bool {
-        guard car.status == .owned else { return false }
+    /// True when `car` sits on the given list and shares a normalised casting name *and* colorway
+    /// with the supplied values. Cars on the other list never count.
+    static func isDuplicate(
+        castingName: String,
+        colorway: String?,
+        status: CollectionStatus,
+        of car: Car
+    ) -> Bool {
+        guard car.status == status else { return false }
         return SearchNormalizer.normalize(castingName) == SearchNormalizer.normalize(car.castingName)
             && SearchNormalizer.normalize(colorway ?? "") == SearchNormalizer.normalize(car.colorway ?? "")
     }
