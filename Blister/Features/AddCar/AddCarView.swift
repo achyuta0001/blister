@@ -14,6 +14,10 @@ import os
 /// Presented as a sheet from whichever screen the user tapped "+" on: Garage and Aisle Check present
 /// it unchanged (defaulting to the Garage), Wishlist passes `initialStatus: .wanted` so the form opens
 /// already pointed at the wishlist. The user can still flip it either way in the form.
+///
+/// A `.wanted` entry is form-first rather than camera-first (see `opensCameraFirst`) and hides the
+/// purchase price (see `purchaseSection`): the car isn't in the collector's hands yet, so there is
+/// nothing to photograph and nothing has been paid.
 struct AddCarView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
