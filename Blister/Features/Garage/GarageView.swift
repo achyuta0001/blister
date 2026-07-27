@@ -70,6 +70,18 @@ struct GarageView: View {
             .sheet(isPresented: $isAddingCar) {
                 AddCarView()
             }
+            // The hunt filter menu can only afford one clipped line about what a Treasure Hunt is;
+            // tapping it opens the screen that has room to say it properly.
+            .sheet(isPresented: $isExplainingHunts) {
+                NavigationStack {
+                    HuntGuideView()
+                        .toolbar {
+                            ToolbarItem(placement: .confirmationAction) {
+                                Button(String(localized: "Done")) { isExplainingHunts = false }
+                            }
+                        }
+                }
+            }
             .safeAreaInset(edge: .top, spacing: 0) {
                 VStack(spacing: 0) {
                     GarageHeader(
