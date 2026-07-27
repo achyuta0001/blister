@@ -46,6 +46,10 @@ final class AddCarModel {
     /// entry (name/brand/series + reference price) on tap.
     var identifiedCatalogEntries: [CatalogEntry] = []
 
+    init(status: CollectionStatus = .owned) {
+        self.status = status
+    }
+
     /// Casting name is the one required field (spec §6.3).
     var isValid: Bool {
         !castingName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
