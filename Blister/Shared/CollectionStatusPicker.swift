@@ -35,6 +35,8 @@ struct CollectionStatusPicker: View {
             }
             .pickerStyle(.segmented)
             .labelsHidden()
+            .frame(minHeight: DesignTokens.minTapTarget)
+            .contentShape(Rectangle())
         }
         .padding(.vertical, DesignTokens.spacingXS)
         .accessibilityElement(children: .contain)
