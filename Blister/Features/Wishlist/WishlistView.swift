@@ -74,6 +74,9 @@ struct WishlistView: View {
                     )
                 }
             }
+            .sheet(isPresented: $isAddingCar) {
+                AddCarView(initialStatus: .wanted)
+            }
             .sheet(item: $foundCar) { car in
                 FoundItSheet(car: car)
                     .presentationDetents([.medium, .large])
