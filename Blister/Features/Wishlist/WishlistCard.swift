@@ -50,7 +50,9 @@ struct WishlistCard: View {
     @ViewBuilder private var thumbnail: some View {
         if let first = car.photoFilenames.first,
            let image = DocumentsPhotoStore.shared.thumbnail(for: first) {
-            Image(uiImage: image).resizable()
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFill()
         } else {
             TypographicPlaceholder(castingName: car.castingName, brand: car.brand)
         }
