@@ -100,6 +100,10 @@ final class AddCarModel {
 
     /// Builds a `Car` from the current form values. The caller inserts it and saves. The estimated
     /// value prefers a user-entered figure, else falls back to an applied catalog reference price.
+    ///
+    /// A wanted car has not been bought, so no price paid is carried over — the form hides that field
+    /// for `.wanted`, and the price is collected later by the "Found it" flow when the car is actually
+    /// acquired. This keeps `purchasePriceINR` meaning "what I paid", never "what I expect to pay".
     func makeCar(photoFilenames: [String]) -> Car {
         Car(
             castingName: castingName.trimmingCharacters(in: .whitespacesAndNewlines),
