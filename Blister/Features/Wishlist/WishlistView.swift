@@ -7,6 +7,9 @@ import OSLog
 /// Each card's primary action is **"Found it"**: a single tap flips the car to `.owned` (moving it
 /// out of the wishlist and into the Garage per spec §4) and then offers an optional price-paid
 /// prompt. The flip happens immediately so the move feels like one tap; the price is optional.
+///
+/// The "+" in the toolbar opens the full Add Car form pre-set to `.wanted`, so a car can be put on
+/// the wishlist directly rather than only via an Aisle Check miss.
 struct WishlistView: View {
     @Environment(\.modelContext) private var modelContext
     // Fetch all cars sorted, then filter to wanted in memory — SwiftData `#Predicate` can't reliably
