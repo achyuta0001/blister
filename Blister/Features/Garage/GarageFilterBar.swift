@@ -68,17 +68,15 @@ struct GarageFilterBar: View {
     /// Nothing else in the app says what a Treasure Hunt is, so the filter that sorts by them says
     /// it. A real row, not a bare `Text` or a `Section` footer: a `Menu` is backed by a `UIMenu`,
     /// which lays out only real menu items. It also clips a row to two narrow lines — measured at
-    /// roughly 40 characters — so the wording is kept short enough to survive intact.
+    /// roughly 40 characters — so the line here stays a teaser and tapping it opens
+    /// ``HuntGuideView``, which has the room to explain properly.
     private var huntExplainer: some View {
-        Button {} label: {
+        Button(action: onExplainHunt) {
             Label(
                 String(localized: "TH / $TH: rare cars hidden in cases."),
                 systemImage: "info.circle"
             )
-            .font(.caption)
-            .foregroundStyle(DesignTokens.secondaryText)
         }
-        .disabled(true)
     }
 
     private var huntChip: some View {
