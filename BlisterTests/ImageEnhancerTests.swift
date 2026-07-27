@@ -24,6 +24,22 @@ struct ImageEnhancerTests {
         }
     }
 
+    /// Flat printed art with a deep shadow block — the shape of a blister card, and the input
+    /// `CIHighlightShadowAdjust` reaches for hardest.
+    private func printedArtImage(width: CGFloat, height: CGFloat) -> UIImage {
+        let size = CGSize(width: width, height: height)
+        let format = UIGraphicsImageRendererFormat.default()
+        format.scale = 1
+        format.opaque = true
+        return UIGraphicsImageRenderer(size: size, format: format).image { context in
+            let cg = context.cgContext
+            UIColor(white: 0.93, alpha: 1).setFill()
+            cg.fill(CGRect(origin: .zero, size: size))
+            UIColor(red: 0.05, green: 0.07, blue: 0.10, alpha: 1).setFill()
+            cg.fill(CGRect(x: 0, y: height * 0.55, width: width, height: height * 0.45))
+        }
+    }
+
     @Test func enhancedPreservesPixelDimensions() throws {
         let original = sampleImage(width: 120, height: 80)
         let enhanced = try #require(ImageEnhancer.enhanced(original),
