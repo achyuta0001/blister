@@ -54,6 +54,7 @@ struct GarageCard: View {
                 .resizable()
                 .scaledToFill()
         } else {
+            // Not an image and has no intrinsic ratio: it simply fills the square cell.
             TypographicPlaceholder(castingName: car.castingName, brand: car.brand)
         }
     }
