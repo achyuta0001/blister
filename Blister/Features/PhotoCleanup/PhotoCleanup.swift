@@ -104,9 +104,8 @@ enum PhotoCleanup {
             return nil
         }
 
-        // Give the lifted subject a gentle enhancement pass so cleaned photos pop; fall back to the
-        // raw subject if the pass fails.
-        let enhanced = ImageEnhancer.enhanced(UIImage(cgImage: subjectCG))?.cgImage ?? subjectCG
+        return studioComposite(lifted: subjectCG)
+    }
 
         return composite(subject: enhanced)
     }
