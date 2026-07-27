@@ -107,6 +107,17 @@ enum PhotoCleanup {
         return studioComposite(lifted: subjectCG)
     }
 
+    /// The tail of the lift path: a gentle enhancement pass, then the studio composite.
+    ///
+    /// Split out and `internal` purely so tests can exercise the loose-car output —
+    /// `VNGenerateForegroundInstanceMaskRequest` cannot build an inference context in the simulator,
+    /// so nothing above this point can run there (see ``PhotoCleanupSmokeTest``).
+    ///
+    /// - Parameter lifted: the isolated casting, with a transparent surround.
+    static func studioComposite(lifted subject: CGImage) -> Data? {
+        // The full auto-adjust chain is right here: this really is a photograph of an object, unlike
+        // the flat printed art the card path handles. Fall back to the raw subject if it fails.
+        let enhanced = ImageEnhancer.enhanced(UIImage(cgImage: subject))?.cgImage ?? subject
         return composite(subject: enhanced)
     }
 
