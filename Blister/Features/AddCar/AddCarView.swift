@@ -101,7 +101,7 @@ struct AddCarView: View {
                 Button(String(localized: "Add anyway")) { performSave(addAnother: addAnother) }
                 Button(String(localized: "Cancel"), role: .cancel) {}
             } message: { _ in
-                Text(String(localized: "A car with this casting and colorway is already in your garage. Add it anyway?"))
+                Text(duplicateMessage)
             }
             .onChange(of: libraryItem) { _, newItem in
                 loadLibraryItem(newItem)
