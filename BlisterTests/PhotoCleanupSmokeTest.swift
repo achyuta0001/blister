@@ -39,7 +39,7 @@ struct PhotoCleanupSmokeTest {
 
     /// The carded-and-hand-held case the card-crop path exists for. Runs end to end in the
     /// simulator and writes before / card-crop / after so the hand removal can be seen.
-    @Test func cropsAHandHeldCardOntoStudioBackdrop() async throws {
+    @Test func cropsAHandHeldCardToTheCardAlone() async throws {
         let scene = SyntheticCardScene.card(degrees: 7, withHands: true)
         let upright = try #require(scene.image.cgImage)
 
