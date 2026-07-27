@@ -8,7 +8,12 @@ struct GarageCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: DesignTokens.spacingXS) {
             ZStack(alignment: .topTrailing) {
-                thumbnail
+                // The square cell is carved out of an empty `Color`, not out of the photo. Putting
+                // `.aspectRatio(1, …)` on the image itself hands a *resizable* image an explicit
+                // ratio, which overrides the picture's own and **stretches** it into the square —
+                // a portrait card came out horizontally fat. Sizing a shape and overlaying the
+                // photo keeps the cell square while the photo crops (see `thumbnail`).
+                Color.clear
                     .aspectRatio(1, contentMode: .fill)
                     .frame(maxWidth: .infinity)
                     .clipped()
