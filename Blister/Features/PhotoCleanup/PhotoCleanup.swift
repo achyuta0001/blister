@@ -160,7 +160,7 @@ enum PhotoCleanup {
         format.opaque = true
         let renderer = UIGraphicsImageRenderer(size: size, format: format)
 
-        return renderer.pngData { _ in
+        return renderer.jpegData(withCompressionQuality: 0.92) { _ in
             UIImage(cgImage: image).draw(in: CGRect(origin: .zero, size: size))
         }
     }
