@@ -185,6 +185,13 @@ struct AddCarView: View {
 
     @ViewBuilder private var detailsSection: some View {
         Section(String(localized: "Details")) {
+            // First row, so the destination is settled before anything is typed. Labelled "Add to"
+            // with Garage/Wishlist segments so it can't be mistaken for the "Hunt status" picker
+            // further down, which is about treasure hunts, not where the car lives.
+            CollectionStatusPicker(
+                title: String(localized: "Add to"),
+                selection: $model.status
+            )
             AutocompleteField(
                 title: String(localized: "Casting name"),
                 text: $model.castingName,
