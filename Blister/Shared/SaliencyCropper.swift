@@ -133,20 +133,14 @@ enum SaliencyCropper {
         return CGRect(x: x, y: y, width: width, height: height)
     }
 
-    /// A centred crop of `targetAspect` filling the image in one axis. Used when Vision finds nothing.
-    static func centerCropRect(imageSize: CGSize, targetAspect: CGFloat) -> CGRect {
-        let imageRect = CGRect(origin: .zero, size: imageSize)
-        guard imageSize.width > 0, imageSize.height > 0, targetAspect > 0 else { return imageRect }
-        var width = imageSize.width
-        var height = imageSize.height
-        if width / height > targetAspect {
-            width = height * targetAspect
-        } else {
-            height = width / targetAspect
-        }
-        return CGRect(x: (imageSize.width - width) / 2,
-                      y: (imageSize.height - height) / 2,
-                      width: width,
-                      height: height)
+    /// The crop used when Vision finds nothing salient: **the whole image**, untouched.
+    ///
+    /// It deliberately does not force `targetAspect`. Blind of any idea where the casting is, hitting
+    /// a square target would mean chopping ~38% off a portrait card (a cleaned card saves at its own
+    /// ~0.62 aspect) with no evidence the removed strip is the boring end — and this is the branch
+    /// that *always* runs in the simulator and in CI, where the saliency model cannot build an
+    /// inference context. An off-aspect thumbnail is a cosmetic compromise; a beheaded card is not.
+    static func fallbackCropRect(imageSize: CGSize) -> CGRect {
+        CGRect(origin: .zero, size: imageSize)
     }
 }
