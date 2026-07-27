@@ -121,6 +121,22 @@ enum PhotoCleanup {
         return composite(subject: enhanced)
     }
 
+    /// PNG-encodes a `CGImage` at its own pixel size, using the same renderer as ``composite(subject:)``
+    /// so both cleanup paths hand identically-encoded `Sendable` data back across the task boundary.
+    private static func encoded(_ image: CGImage) -> Data? {
+        let size = CGSize(width: image.width, height: image.height)
+        guard size.width > 0, size.height > 0 else { return nil }
+
+        let format = UIGraphicsImageRendererFormat.default()
+        format.scale = 1
+        format.opaque = true
+        let renderer = UIGraphicsImageRenderer(size: size, format: format)
+
+        return renderer.pngData { _ in
+            UIImage(cgImage: image).draw(in: CGRect(origin: .zero, size: size))
+        }
+    }
+
     /// Draws the lifted subject on a dark studio backdrop with a soft contact shadow, auto-framed on
     /// a square canvas. Uses `CleanupGeometry` for the framing math (top-left/bottom-left symmetric
     /// because the placement is centered).
