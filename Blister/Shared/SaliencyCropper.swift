@@ -8,11 +8,12 @@ import os
 /// Uses Vision's attention-based saliency to find the region a viewer looks at (for a *carded*
 /// product that's the whole flat, usually portrait card), expands it to the target aspect **without
 /// ever cropping into the salient region**, and clamps to the image. If saliency yields nothing it
-/// falls back to a plain centre crop. Never crashes; returns `nil` only when there's no drawable
-/// image.
+/// keeps the whole image rather than guessing. Never crashes; returns `nil` only when there's no
+/// drawable image.
 ///
-/// The pure rect math lives in ``cropRect(salientRect:imageSize:targetAspect:)`` and
-/// ``centerCropRect(imageSize:targetAspect:)`` so it is deterministic and unit-testable.
+/// Nothing here ever cuts into the subject: both the salient path and the fallback only ever pad or
+/// pass through. The pure rect math lives in ``cropRect(salientRect:imageSize:targetAspect:)`` and
+/// ``fallbackCropRect(imageSize:)`` so it is deterministic and unit-testable.
 enum SaliencyCropper {
     private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "Blister",
                                        category: "SaliencyCropper")
