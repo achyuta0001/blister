@@ -29,6 +29,11 @@ enum PhotoCleanup {
     private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "Blister",
                                        category: "PhotoCleanup")
 
+    /// Longest-edge ceiling, in pixels, for anything this pipeline hands back — the card crop in
+    /// ``encoded(_:)`` and the studio canvas in ``composite(subject:)``. Bounds both the `Data` that
+    /// crosses the `Task.detached` boundary and the image the caller then re-encodes to disk.
+    static let maxEncodedEdge: CGFloat = 1600
+
     static func cleaned(_ image: UIImage) async -> UIImage? {
         guard let source = image.cgImage else { return nil }
         // CGImage is immutable and thread-safe (Sendable) and `UIImage.Orientation` is a plain enum,
