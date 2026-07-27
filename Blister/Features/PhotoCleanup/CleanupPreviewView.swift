@@ -2,8 +2,13 @@ import SwiftUI
 
 /// Before/after chooser for on-device photo cleanup (spec §6.3 / §6.4). Presented as a sheet after
 /// `PhotoCleanup.cleaned(_:)` returns a non-nil result. The user compares the original snap against
-/// the studio-composited version and picks one; nothing is persisted here — the callbacks hand the
-/// decision back to the caller, which owns saving.
+/// the cleaned one and picks one; nothing is persisted here — the callbacks hand the decision back
+/// to the caller, which owns saving.
+///
+/// "Cleaned" is not one fixed look: a **carded** photo comes back as the deskewed card alone, at the
+/// card's own aspect, while a **loose** casting comes back composited onto the square studio
+/// backdrop. Which one the user is looking at depends on the photo, so the view sizes the image with
+/// `.scaledToFit()` rather than assuming a square.
 struct CleanupPreviewView: View {
     /// Which image the toggle is currently showing.
     private enum Variant: Hashable {
