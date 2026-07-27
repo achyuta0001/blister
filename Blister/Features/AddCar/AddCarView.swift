@@ -385,6 +385,11 @@ struct AddCarView: View {
     /// Entry point for both Save buttons. Warns (non-blocking) if an owned car with the same casting
     /// and colorway already exists; otherwise saves straight through. Collectors do own multiples, so
     /// this only confirms — it never blocks.
+    ///
+    /// The check reads the *existing* cars' status, never the one being added: only owned cars count
+    /// as duplicates (see ``DuplicateCarDetector``). So batch-adding wanted cars can't trip over the
+    /// entries it just made, and a wanted car that matches something already owned still gets the
+    /// warning — which is the one time a collector genuinely wants to hear it.
     private func save(addAnother: Bool) {
         guard model.isValid else { return }
         if DuplicateCarDetector.ownedDuplicateExists(
