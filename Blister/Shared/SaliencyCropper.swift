@@ -59,8 +59,8 @@ enum SaliencyCropper {
 
         guard let observation = request.results?.first,
               let objects = observation.salientObjects, !objects.isEmpty else {
-            // Vision found nothing salient (common on blank/low-contrast shots) — centre crop.
-            return centerCropRect(imageSize: imageSize, targetAspect: targetAspect)
+            // Vision found nothing salient (common on blank/low-contrast shots) — keep everything.
+            return fallbackCropRect(imageSize: imageSize)
         }
 
         // Union every salient object so the whole card stays in frame.
