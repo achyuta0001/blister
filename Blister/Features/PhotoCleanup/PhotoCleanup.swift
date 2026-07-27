@@ -126,11 +126,34 @@ enum PhotoCleanup {
         return composite(subject: enhanced)
     }
 
-    /// PNG-encodes a `CGImage` at its own pixel size, using the same renderer as ``composite(subject:)``
-    /// so both cleanup paths hand identically-encoded `Sendable` data back across the task boundary.
-    private static func encoded(_ image: CGImage) -> Data? {
-        let size = CGSize(width: image.width, height: image.height)
-        guard size.width > 0, size.height > 0 else { return nil }
+    /// Encodes the card crop to `Sendable` data for the trip back across the `Task.detached`
+    /// boundary, clamped to ``maxEncodedEdge`` pixels on its **long** side.
+    ///
+    /// The clamp matters more here than on the composite path, because this is the path most photos
+    /// take (a carded casting). A 12MP capture whose card fills ~60% of the frame yields a roughly
+    /// 2000×3000 perspective-corrected card; encoding that unclamped means ~6MP of PNG — 10–20MB of
+    /// `Data` handed across the boundary purely for `UIImage(data:)` to decode again. 1600px is the
+    /// same ceiling ``composite(subject:)`` puts on its canvas.
+    ///
+    /// The scale is applied to **both** axes, so the card keeps its own aspect. It is deliberately
+    /// *not* squared: a portrait card stays portrait (see the type doc, and
+    /// `aCleanedCardKeepsItsOwnAspectAndHasNoBackdropMargin`).
+    ///
+    /// JPEG rather than the composite path's PNG: a perspective-corrected card is opaque, so there is
+    /// no alpha to preserve, and ``DocumentsPhotoStore`` re-encodes whatever it is given to lossy
+    /// HEIC on the way to disk — a lossless intermediate buys nothing and costs an order of magnitude
+    /// in bytes. (The lift path keeps PNG; its subject is a cutout that is composited onto an opaque
+    /// canvas, and its canvas was already bounded.)
+    ///
+    /// `internal` only so tests can pin the output resolution — the clamp went missing once because
+    /// nothing did.
+    static func encoded(_ image: CGImage) -> Data? {
+        let raw = CGSize(width: image.width, height: image.height)
+        guard raw.width > 0, raw.height > 0 else { return nil }
+
+        let scale = min(1, maxEncodedEdge / max(raw.width, raw.height))
+        let size = CGSize(width: max(1, (raw.width * scale).rounded()),
+                          height: max(1, (raw.height * scale).rounded()))
 
         let format = UIGraphicsImageRendererFormat.default()
         format.scale = 1
