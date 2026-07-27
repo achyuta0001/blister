@@ -17,8 +17,11 @@ import os
 /// 2. **Subject lift** (`VNGenerateForegroundInstanceMaskRequest`) — the fallback for loose
 ///    (uncarded) castings, where there is no rectangle to find.
 ///
-/// Both paths feed the same ``ImageEnhancer`` pass and the same ``composite(subject:)``, so cleaned
-/// photos share one look regardless of which one ran.
+/// Both paths run the same ``ImageEnhancer`` pass, but only the **lift** path composites. A lifted
+/// casting is a cutout with an alpha hole around it, so it needs a backdrop to stand on; a
+/// perspective-corrected card is already an opaque, edge-to-edge product shot, and dropping it onto
+/// the studio canvas would only bake in a grey margin (the square canvas leaves ~55% backdrop around
+/// a portrait card) plus a reflection that ``StudioScene`` already draws for itself.
 ///
 /// Fully on-device, Apple frameworks only. Returns `nil` (callers keep the original) when there's no
 /// subject or on any failure — it never throws or crashes.
