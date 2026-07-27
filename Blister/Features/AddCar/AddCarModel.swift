@@ -14,6 +14,11 @@ final class AddCarModel {
     var condition: Condition = .mintOnCard
     var pricePaid: Decimal?
 
+    /// Whether this entry lands in the Garage (`.owned`) or on the Wishlist (`.wanted`). Seeded from
+    /// the presenting screen — Wishlist's "+" opens the form already set to `.wanted` — and freely
+    /// switchable in the form.
+    var status: CollectionStatus = .owned
+
     /// A reference value the user explicitly entered/adjusted. When `nil`, an applied catalog
     /// entry's reference price (``appliedCatalogPriceINR``) is used on save instead — never overwriting
     /// a user value.
