@@ -172,17 +172,17 @@ struct SaliencyCropperTests {
         let tagged = try #require(SaliencyCropper.centeredCrop(capture, targetAspect: 1))
         #expect(tagged.imageOrientation == .right, "the crop should keep the source's tag")
 
-        // Did Vision's saliency actually drive the crop, or did it fall back to the centre? A centre
-        // crop is orientation-symmetric by construction, so the invariance check is only strong
+        // Did Vision's saliency actually drive the crop, or did it fall back to the whole image? The
+        // fallback is orientation-symmetric by construction, so the invariance check is only strong
         // evidence in the first case.
         let source = try #require(photo.cgImage)
-        let centre = SaliencyCropper.centerCropRect(
-            imageSize: CGSize(width: source.width, height: source.height), targetAspect: 1
+        let fallback = SaliencyCropper.fallbackCropRect(
+            imageSize: CGSize(width: source.width, height: source.height)
         )
         let straightBuffer = try #require(straight.cgImage)
-        let centreCrop = try #require(source.cropping(to: centre.integral))
-        let vsCentre = SyntheticCardScene.meanChannelDifference(straightBuffer, centreCrop)
-        print("SALIENCY_PATH_EXERCISED=\(vsCentre > 0.01) (vsCentre=\(vsCentre))")
+        let fallbackCrop = try #require(source.cropping(to: fallback.integral))
+        let vsFallback = SyntheticCardScene.meanChannelDifference(straightBuffer, fallbackCrop)
+        print("SALIENCY_PATH_EXERCISED=\(vsFallback > 0.01) (vsFallback=\(vsFallback))")
 
         // Compare what each one *displays*, not the raw buffers.
         let expected = try #require(ImageOrientation.uprighted(straight).cgImage)
