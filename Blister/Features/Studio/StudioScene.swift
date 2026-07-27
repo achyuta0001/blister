@@ -231,14 +231,17 @@ final class StudioScene {
 
     // MARK: - Materials
 
-    private static func photoMaterial(texture: TextureResource) -> PhysicallyBasedMaterial {
-        var material = PhysicallyBasedMaterial()
-        material.baseColor = .init(tint: .white, texture: .init(texture))
-        // A touch of self-illumination guarantees the photo stays readable regardless of the rig.
-        material.emissiveColor = .init(color: .white, texture: .init(texture))
-        material.emissiveIntensity = 0.14
-        material.roughness = 0.42
-        material.metallic = 0.0
+    /// The photo face is deliberately **unlit** — it shows the picture exactly as authored.
+    ///
+    /// A `PhysicallyBasedMaterial` here greys the photo out three ways at once: its roughness lobe
+    /// lays a broad white specular sheen over the whole plane, an emissive pass additively re-adds a
+    /// slice of the texture and lifts the blacks, and both ride on RealityKit's default ambient IBL
+    /// (no environment is configured in this scene). White light added over colour desaturates it.
+    /// The surrounding slab, floor, reflection and shadow stay physically based — they are the
+    /// geometry that sells the depth, and they *should* respond to the light rig.
+    private static func photoMaterial(texture: TextureResource) -> UnlitMaterial {
+        var material = UnlitMaterial()
+        material.color = .init(tint: .white, texture: .init(texture))
         return material
     }
 
