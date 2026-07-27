@@ -177,7 +177,7 @@ enum PhotoCleanup {
 
         let rawCanvas = CleanupGeometry.squareCanvas(around: CGRect(origin: .zero, size: subjectSize),
                                                      marginFraction: 0.14)
-        let side = min(max(rawCanvas.width, 1), 1600)
+        let side = min(max(rawCanvas.width, 1), maxEncodedEdge)
         let canvas = CGSize(width: side, height: side)
         let place = CleanupGeometry.placement(of: subjectSize, in: canvas, marginFraction: 0.14)
 
