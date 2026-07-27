@@ -16,6 +16,7 @@ struct GarageCard: View {
                 Color.clear
                     .aspectRatio(1, contentMode: .fill)
                     .frame(maxWidth: .infinity)
+                    .overlay { thumbnail }
                     .clipped()
                 if let badge = car.huntStatus.badge {
                     Text(badge)
