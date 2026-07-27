@@ -29,6 +29,9 @@ struct WishlistView: View {
     /// swallowed.
     @State private var saveError: ErrorAlert?
 
+    /// Drives the Add Car sheet behind the "+" toolbar button.
+    @State private var isAddingCar = false
+
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "Blister",
                                category: "Wishlist")
 
