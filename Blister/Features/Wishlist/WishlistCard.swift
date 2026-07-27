@@ -15,7 +15,10 @@ struct WishlistCard: View {
         VStack(alignment: .leading, spacing: DesignTokens.spacingXS) {
             NavigationLink { CarDetailView(car: car) } label: {
                 VStack(alignment: .leading, spacing: DesignTokens.spacingXS) {
-                    thumbnail
+                    // Square cell from an empty `Color`, photo overlaid — same reasoning as
+                    // ``GarageCard``: an explicit `.aspectRatio(1, …)` on a resizable image
+                    // overrides the picture's own ratio and stretches it instead of cropping.
+                    Color.clear
                         .aspectRatio(1, contentMode: .fill)
                         .frame(maxWidth: .infinity)
                         .clipped()
