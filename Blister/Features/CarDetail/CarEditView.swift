@@ -45,6 +45,7 @@ struct CarEditView: View {
         _series = State(initialValue: car.series ?? "")
         _huntStatus = State(initialValue: car.huntStatus)
         _condition = State(initialValue: car.condition)
+        _status = State(initialValue: car.status)
         _pricePaid = State(initialValue: car.purchasePriceINR)
         _purchaseLocation = State(initialValue: car.purchaseLocation ?? "")
         _notes = State(initialValue: car.notes ?? "")
