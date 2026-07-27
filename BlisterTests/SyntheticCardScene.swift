@@ -155,6 +155,67 @@ enum SyntheticCardScene {
         }
     }
 
+    /// Mean brightness (`0...1`) of a small patch inset from each of the four corners, ordered
+    /// `[topLeft, topRight, bottomRight, bottomLeft]` in top-left pixel space.
+    ///
+    /// Tells "the frame *is* the subject" apart from "the subject sits on a backdrop": the studio
+    /// composite leaves a near-black margin (14% of the canvas top and bottom, 28% either side of a
+    /// portrait card), so its corners read dark, while an edge-to-edge card crop reads as card.
+    /// The default 6% inset clears the card detector's own 2% padding without reaching the print.
+    static func cornerBrightness(of image: CGImage, insetFraction: CGFloat = 0.06) -> [Double] {
+        let width = image.width
+        let height = image.height
+        guard width > 0, height > 0 else { return [] }
+        var pixels = [UInt8](repeating: 0, count: width * height * 4)
+        let drawn: Bool = pixels.withUnsafeMutableBytes { raw in
+            guard let context = CGContext(data: raw.baseAddress,
+                                          width: width, height: height,
+                                          bitsPerComponent: 8, bytesPerRow: width * 4,
+                                          space: CGColorSpaceCreateDeviceRGB(),
+                                          bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)
+            else { return false }
+            context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
+            return true
+        }
+        guard drawn else { return [] }
+
+        let inset = max(0, min(0.4, insetFraction))
+        let patch = max(1, Int((CGFloat(min(width, height)) * 0.02).rounded()))
+        let insetX = Int(CGFloat(width) * inset)
+        let insetY = Int(CGFloat(height) * inset)
+        let origins = [(insetX, insetY),
+                       (width - insetX - patch, insetY),
+                       (width - insetX - patch, height - insetY - patch),
+                       (insetX, height - insetY - patch)]
+
+        return origins.map { originX, originY in
+            var total = 0
+            var samples = 0
+            for y in originY..<(originY + patch) where y >= 0 && y < height {
+                for x in originX..<(originX + patch) where x >= 0 && x < width {
+                    let index = (y * width + x) * 4
+                    total += Int(pixels[index]) + Int(pixels[index + 1]) + Int(pixels[index + 2])
+                    samples += 1
+                }
+            }
+            guard samples > 0 else { return 0 }
+            return Double(total) / Double(samples * 3) / 255
+        }
+    }
+
+    /// An opaque-free stand-in for a **lifted** casting: a bright blob on a fully transparent
+    /// surround, the shape `VNGenerateForegroundInstanceMaskRequest` produces (and which the
+    /// simulator cannot). Lets the loose-car composite be exercised where Vision can't run.
+    static func liftedSubject(size: CGSize = CGSize(width: 600, height: 320)) -> UIImage {
+        let format = UIGraphicsImageRendererFormat.default()
+        format.scale = 1
+        format.opaque = false
+        return UIGraphicsImageRenderer(size: size, format: format).image { context in
+            UIColor(red: 0.16, green: 0.52, blue: 0.86, alpha: 1).setFill()
+            context.cgContext.fillEllipse(in: CGRect(origin: .zero, size: size))
+        }
+    }
+
     /// Fraction of `image`'s pixels that are close to ``skinTone``. Used to prove a crop actually
     /// removed the hand rather than merely shrinking the frame.
     static func skinFraction(of image: CGImage) -> Double {
