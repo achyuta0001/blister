@@ -70,7 +70,7 @@ struct WishlistView: View {
                     ContentUnavailableView(
                         String(localized: "Nothing on the wishlist"),
                         systemImage: "star",
-                        description: Text(String(localized: "Tap + to add a car you're hunting for. When you track it down, \u{201C}Found it\u{201D} moves it into your garage."))
+                        description: Text(String(localized: "Tap + to add a car you’re hunting for. When you track it down, \u{201C}Found it\u{201D} moves it into your garage."))
                     )
                 }
             }
