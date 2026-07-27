@@ -191,6 +191,7 @@ struct CarEditView: View {
         car.series = Self.trimmedOrNil(series)
         car.huntStatus = huntStatus
         car.condition = condition
+        car.status = status
         car.purchasePriceINR = pricePaid
         car.purchaseLocation = Self.trimmedOrNil(purchaseLocation)
         car.notes = Self.trimmedOrNil(notes)
