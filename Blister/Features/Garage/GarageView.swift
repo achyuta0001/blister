@@ -14,6 +14,7 @@ struct GarageView: View {
     @Query(sort: \Car.dateAdded, order: .reverse) private var allCars: [Car]
     @State private var filters = GarageFilters()
     @State private var isAddingCar = false
+    @State private var isExplainingHunts = false
 
     /// Owned cars only (the Garage; wishlist is a separate screen).
     private var owned: [Car] {
