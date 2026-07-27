@@ -39,6 +39,21 @@ struct RootView: View {
     }
 
     var body: some View {
+        shell
+        #if DEBUG
+            // Debug launch aid: `BLISTER_OPEN_STUDIO=1` opens the 3D studio on the first stored
+            // photo, so it can be inspected without the three taps that get there in the real UI.
+            .fullScreenCover(item: $debugStudioPhoto) { photo in
+                StudioView(image: photo.image)
+            }
+            .task {
+                debugStudioPhoto = DebugLaunch.studioPhotoIfRequested(modelContext)
+                    .map(DebugStudioPhoto.init)
+            }
+        #endif
+    }
+
+    private var shell: some View {
         TabView(selection: $selection) {
             SwiftUI.Tab(String(localized: "Aisle"), systemImage: "magnifyingglass", value: Tab.aisle) {
                 AisleCheckView()
