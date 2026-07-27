@@ -110,6 +110,26 @@ struct CarEditView: View {
         }
     }
 
+    // MARK: Sections
+
+    /// Hidden once the car is headed for the wishlist, matching ``AddCarView``: you cannot have paid
+    /// for something you do not own. The staged values stay in `@State`, so flipping back to the
+    /// Garage before saving brings them back rather than silently losing what was typed — only an
+    /// actual save into the wishlist drops them (see ``CarPurchaseFields``).
+    @ViewBuilder private var purchaseSection: some View {
+        if status == .owned {
+            Section(String(localized: "Purchase")) {
+                TextField(
+                    String(localized: "Price paid (₹)"),
+                    value: $pricePaid,
+                    format: .number.precision(.fractionLength(0...2))
+                )
+                .keyboardType(.decimalPad)
+                TextField(String(localized: "Where"), text: $purchaseLocation)
+            }
+        }
+    }
+
     // MARK: Photo
 
     /// Shows the car's current photo (or the staged cleaned one) and offers the same "Clean up photo"
