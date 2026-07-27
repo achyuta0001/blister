@@ -10,6 +10,16 @@ import SwiftUI
 ///
 /// The caption is drawn explicitly instead of relying on the `Picker` label: inside a `Form`, a
 /// `.segmented` picker hides its own label.
+///
+/// The segments are floored at ``DesignTokens/minTapTarget``. UIKit's own segmented metric is 32pt,
+/// so this is a deliberate departure from the platform default: the project's token (spec §7
+/// accessibility) is enforced on every other control in the same form, and a 32pt row next to 44pt
+/// neighbours is both the smaller target and the visibly odd one out. Padding the enclosing `VStack`
+/// does not do this — it grows the form row while leaving the segments' hit area at 32pt.
+///
+/// `.accessibilityElement(children: .contain)` (**not** `.combine`) keeps each segment individually
+/// reachable to VoiceOver while the container still announces the caption; combining here would
+/// collapse the choice into one unusable element.
 struct CollectionStatusPicker: View {
     let title: String
     @Binding var selection: CollectionStatus
