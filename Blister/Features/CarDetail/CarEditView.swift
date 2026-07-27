@@ -79,15 +79,7 @@ struct CarEditView: View {
                         ForEach(Condition.allCases) { Text($0.displayName).tag($0) }
                     }
                 }
-                Section(String(localized: "Purchase")) {
-                    TextField(
-                        String(localized: "Price paid (₹)"),
-                        value: $pricePaid,
-                        format: .number.precision(.fractionLength(0...2))
-                    )
-                    .keyboardType(.decimalPad)
-                    TextField(String(localized: "Where"), text: $purchaseLocation)
-                }
+                purchaseSection
                 Section(String(localized: "Notes")) {
                     TextField(String(localized: "Notes"), text: $notes, axis: .vertical)
                         .lineLimit(3...6)
