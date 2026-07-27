@@ -389,13 +389,18 @@ struct AddCarView: View {
 
     /// Whether the form should jump straight into the viewfinder.
     ///
-    /// The check reads the *existing* cars' status, never the one being added: only owned cars count
-    /// as duplicates (see ``DuplicateCarDetector``). So batch-adding wanted cars can't trip over the
-    /// entries it just made, and a wanted car that matches something already owned still gets the
-    /// warning — which is the one time a collector genuinely wants to hear it.
-    private func save(addAnother: Bool) {
-        guard model.isValid else { return }
-        if DuplicateCarDetector.ownedDuplicateExists(
+    /// Only for a car going into the Garage. Camera-first exists because adding an owned car starts
+    /// with the physical car in the collector's hand — but a *wanted* car is by definition not in the
+    /// room, so the wishlist "+" would otherwise open a viewfinder pointed at nothing that has to be
+    /// dismissed before a name can be typed, once per entry during batch adds. A wanted car can still
+    /// attach a photo: the Camera and Library buttons in the photo section are untouched.
+    private var opensCameraFirst: Bool {
+        CameraPicker.isCameraAvailable && model.status == .owned
+    }
+
+    /// True when the list this car is being added to already holds the same casting + colorway.
+    private var duplicateExists: Bool {
+        DuplicateCarDetector.duplicateExists(
             castingName: model.castingName,
             colorway: model.colorway,
             in: allCars
