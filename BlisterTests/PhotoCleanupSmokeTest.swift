@@ -58,9 +58,9 @@ struct PhotoCleanupSmokeTest {
         let before = SyntheticCardScene.skinFraction(of: upright)
         let after = SyntheticCardScene.skinFraction(of: card)
         print("PHOTOCLEANUP_CARDED_SKIN before=\(before) after=\(after)")
-        print("PHOTOCLEANUP_CARDED_RESULT=\(cleaned == nil ? "nil" : "composited")")
+        print("PHOTOCLEANUP_CARDED_RESULT=\(cleaned == nil ? "nil" : "card")")
 
-        #expect(cleaned != nil, "the card path should always produce a composite")
+        #expect(cleaned != nil, "the card path should always produce an image")
         #expect(after < before / 4, "the crop should have removed most of the hand")
     }
 
