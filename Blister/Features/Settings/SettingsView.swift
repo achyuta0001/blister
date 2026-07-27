@@ -93,6 +93,17 @@ struct SettingsView: View {
                 }
 
                 Section(String(localized: "About")) {
+                    // The Garage hunt filter also opens this, but only a collector who already
+                    // found that menu; Settings is where someone goes looking for an answer.
+                    NavigationLink {
+                        HuntGuideView()
+                    } label: {
+                        exportRow(
+                            title: String(localized: "What’s a Treasure Hunt?"),
+                            subtitle: String(localized: "TH, $TH, and how to spot them"),
+                            systemImage: "flame"
+                        )
+                    }
                     LabeledContent(String(localized: "Version"), value: AppInfo.versionString)
                 }
             }
