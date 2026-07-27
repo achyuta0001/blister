@@ -19,11 +19,10 @@ struct CarDetailView: View {
     private let photoStore: PhotoStore = DocumentsPhotoStore.shared
     private let logger = Logger(subsystem: "app.blister", category: "CarDetail")
 
-    /// Other owned cars whose casting name normalises to the same key (spec §6.4).
-    private var variants: [Car] {
-        let key = SearchNormalizer.normalize(car.castingName)
-        guard !key.isEmpty else { return [] }
-        return allCars.filter { $0.id != car.id && SearchNormalizer.normalize($0.castingName) == key }
+    /// How many of this casting the collector owns, this one included. Owned-only — see
+    /// ``CastingVariants``, which ``CastingVariantsView`` shares so the count and the list agree.
+    private var ownedVariantCount: Int {
+        CastingVariants.ownedCount(including: car, in: allCars)
     }
 
     var body: some View {
