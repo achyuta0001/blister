@@ -33,7 +33,8 @@ struct CarDetailView: View {
                     .listRowBackground(Color.clear)
             }
 
-            if !variants.isEmpty {
+            // Shown from two, so the plural in the label is always right.
+            if ownedVariantCount > 1 {
                 Section {
                     NavigationLink {
                         CastingVariantsView(castingName: car.castingName, excludingID: car.id)
