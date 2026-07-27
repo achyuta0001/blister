@@ -204,8 +204,17 @@ struct CarEditView: View {
         car.huntStatus = huntStatus
         car.condition = condition
         car.status = status
-        car.purchasePriceINR = pricePaid
-        car.purchaseLocation = Self.trimmedOrNil(purchaseLocation)
+        // Price/where/when travel together and only belong to an owned car, so moving one onto the
+        // wishlist here has to shed all three — otherwise Settings' "total spent" keeps counting money
+        // for a car the collector no longer owns, and Car Detail keeps rendering "Paid ₹…" on it.
+        CarPurchaseFields.resolved(
+            for: status,
+            priceINR: pricePaid,
+            location: Self.trimmedOrNil(purchaseLocation),
+            // This form has no date field; carry whatever the car already had so a Garage-side edit
+            // doesn't quietly erase it.
+            date: car.purchaseDate
+        ).apply(to: car)
         car.notes = Self.trimmedOrNil(notes)
         car.dateModified = Date()
         car.recomputeSearchKey()
