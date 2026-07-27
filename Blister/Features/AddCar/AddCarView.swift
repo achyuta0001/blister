@@ -19,7 +19,7 @@ struct AddCarView: View {
     @Environment(\.dismiss) private var dismiss
     @Query private var allCars: [Car]
 
-    @State private var model = AddCarModel()
+    @State private var model: AddCarModel
     @State private var showCamera = false
     @State private var libraryItem: PhotosPickerItem?
 
@@ -38,6 +38,12 @@ struct AddCarView: View {
     private let photoStore: PhotoStore = DocumentsPhotoStore.shared
     private let recognizer = CardTextRecognizer()
     private let logger = Logger(subsystem: "app.blister", category: "AddCar")
+
+    /// - Parameter initialStatus: which list the form starts on. Defaults to `.owned` so existing
+    ///   presenters keep their behaviour.
+    init(initialStatus: CollectionStatus = .owned) {
+        _model = State(initialValue: AddCarModel(status: initialStatus))
+    }
 
     var body: some View {
         NavigationStack {
