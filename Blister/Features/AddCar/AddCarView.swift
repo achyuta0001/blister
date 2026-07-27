@@ -111,8 +111,9 @@ struct AddCarView: View {
                 noSubjectFound = false
             }
             .task {
-                // Open straight to the camera on first appearance.
-                if CameraPicker.isCameraAvailable, model.capturedImage == nil {
+                // Open straight to the camera on first appearance — but only for a car being added to
+                // the Garage. See `opensCameraFirst`.
+                if opensCameraFirst, model.capturedImage == nil {
                     showCamera = true
                 }
             }
