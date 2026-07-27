@@ -1,8 +1,14 @@
 import Foundation
 
 /// Pure duplicate-detection for the Add Car flow (spec §6.3). Collectors legitimately own multiples,
-/// so this never hard-blocks — it only tells the view whether an *owned* car with the same casting
-/// name and colorway already exists, so the UI can warn before inserting.
+/// so this never hard-blocks — it only tells the view whether a car with the same casting name and
+/// colorway already exists *on the list being added to*, so the UI can warn before inserting.
+///
+/// The list matters, which is why every entry point takes a status. Two identical cars in the garage
+/// is a real thing a collector does on purpose; two identical rows on the wishlist is always a
+/// mistake, because a wishlist row means "find me one of these" and you only need to be told once.
+/// Matching one list at a time also keeps the two warnings from crossing: an owned car is not a
+/// reason to refuse a wishlist entry (people buy spares), and vice versa.
 ///
 /// Matching is case- and diacritic-insensitive, reusing ``SearchNormalizer`` so it lines up with the
 /// rest of the app's text handling. A missing colorway normalises to an empty string, so two cars
