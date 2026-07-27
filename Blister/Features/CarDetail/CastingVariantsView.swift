@@ -10,6 +10,8 @@ struct CastingVariantsView: View {
 
     private let photoStore: PhotoStore = DocumentsPhotoStore.shared
 
+    /// Owned cars sharing the casting, newest first. Uses the same ``CastingVariants`` rule as the
+    /// "you own N" link that leads here, so the list can't contradict the count.
     private var variants: [Car] {
         let key = SearchNormalizer.normalize(castingName)
         guard !key.isEmpty else { return [] }
