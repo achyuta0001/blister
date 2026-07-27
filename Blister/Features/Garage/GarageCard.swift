@@ -43,6 +43,10 @@ struct GarageCard: View {
         .accessibilityLabel(Text(accessibilityLabel))
     }
 
+    /// Fills the square cell it is overlaid on. `.scaledToFill()` takes **no** ratio argument, so the
+    /// photo keeps its own aspect and the overflow is cropped by the cell's `.clipped()`. Stored
+    /// thumbnails are no longer square — a cleaned card saves at the card's own ~0.62 aspect — so
+    /// this is the difference between a cropped card and a squashed one.
     @ViewBuilder private var thumbnail: some View {
         if let first = car.photoFilenames.first,
            let image = DocumentsPhotoStore.shared.thumbnail(for: first) {
