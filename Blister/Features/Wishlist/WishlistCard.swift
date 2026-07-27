@@ -21,6 +21,7 @@ struct WishlistCard: View {
                     Color.clear
                         .aspectRatio(1, contentMode: .fill)
                         .frame(maxWidth: .infinity)
+                        .overlay { thumbnail }
                         .clipped()
                     Text(car.castingName)
                         .font(.subheadline.weight(.medium))
