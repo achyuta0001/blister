@@ -87,4 +87,8 @@ per-file `project.pbxproj` edits needed.
 Launch env vars (prefix `SIMCTL_CHILD_` when using `simctl launch`): `BLISTER_SEED_IF_EMPTY=1` seeds
 sample cars; `BLISTER_START_TAB=aisle|garage|wishlist|settings`; `BLISTER_SEED_PHOTO=1` attaches a
 synthetic photo to the first owned car; `BLISTER_SEED_COMPOSITE=1` attaches a bundled demo cleanup
-composite. See `Blister/Persistence/DebugLaunch.swift`.
+composite; `BLISTER_OPEN_STUDIO=1` opens straight into the 3D studio on the first stored photo (the
+studio is three taps deep and `simctl` can't tap, so this is how it gets screenshotted). See
+`Blister/Persistence/DebugLaunch.swift`.
+
+Seeding only runs on an **empty** store — `simctl uninstall` + reinstall to force a fresh seed.
