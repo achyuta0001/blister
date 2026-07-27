@@ -6,18 +6,26 @@ import UIKit
 /// Pure crop-rect math for the saliency thumbnail cropper. All rects are top-left pixel space.
 struct SaliencyCropperTests {
 
-    // MARK: centerCropRect (fallback)
+    // MARK: fallbackCropRect (no saliency)
+    //
+    // This is the branch that ALWAYS runs in the simulator and in CI — the saliency model cannot
+    // build an inference context there — so it has to be safe for every aspect, not just the square
+    // composites the store used to hold.
 
-    @Test func centerCropIsCenteredAndHitsTargetAspect() {
-        let image = CGSize(width: 1000, height: 600)
-        let crop = SaliencyCropper.centerCropRect(imageSize: image, targetAspect: 1)
-        // Square crop of a landscape image: side == the shorter edge, centred.
-        #expect(crop.width == 600)
-        #expect(crop.height == 600)
-        #expect(abs(crop.midX - image.width / 2) < 0.0001)
-        #expect(abs(crop.midY - image.height / 2) < 0.0001)
-        #expect(crop.minX >= 0)
-        #expect(crop.maxX <= image.width + 0.0001)
+    @Test func fallbackPreservesAPortraitCardWhole() {
+        // A cleaned card now saves at its own ~0.62 aspect. A square centre crop would take ~38% off
+        // its height; the fallback must hand back every pixel instead.
+        let image = CGSize(width: 620, height: 1000)
+        let crop = SaliencyCropper.fallbackCropRect(imageSize: image)
+        #expect(crop == CGRect(origin: .zero, size: image))
+        #expect(crop.height == image.height, "a portrait card must not lose its top or bottom")
+    }
+
+    @Test func fallbackIsANoOpForASquareComposite() {
+        // The lifted-car path still composites onto a square canvas, and those are unaffected.
+        let image = CGSize(width: 1017, height: 1017)
+        #expect(SaliencyCropper.fallbackCropRect(imageSize: image)
+                == CGRect(origin: .zero, size: image))
     }
 
     @Test func centerCropWithDegenerateImageReturnsImageRect() {
