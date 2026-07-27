@@ -32,6 +32,20 @@ enum DebugLaunch {
         }
     }
 
+    /// The photo `BLISTER_OPEN_STUDIO=1` should open straight into ``StudioView``: the first photo of
+    /// the most recently added car that has one. `nil` when the flag is off or nothing is stored.
+    ///
+    /// The Studio is otherwise three taps deep (Garage → car → hero), and a headless `simctl` session
+    /// has no way to tap — so without this the 3D scene cannot be screenshotted from the command line.
+    @MainActor
+    static func studioPhotoIfRequested(_ context: ModelContext) -> UIImage? {
+        guard ProcessInfo.processInfo.environment["BLISTER_OPEN_STUDIO"] == "1" else { return nil }
+        let descriptor = FetchDescriptor<Car>(sortBy: [SortDescriptor(\.dateAdded, order: .reverse)])
+        guard let car = (try? context.fetch(descriptor))?.first(where: { !$0.photoFilenames.isEmpty }),
+              let filename = car.photoFilenames.first else { return nil }
+        return DocumentsPhotoStore.shared.fullImage(for: filename)
+    }
+
     /// Attaches a bundled PNG (from the app bundle) to the first owned car — used to preview the real
     /// photo-cleanup composite in the UI, since Vision inference can't run in the simulator.
     @MainActor
