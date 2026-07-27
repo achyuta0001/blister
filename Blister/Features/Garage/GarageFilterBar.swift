@@ -6,6 +6,9 @@ struct GarageFilterBar: View {
     @Bindable var filters: GarageFilters
     let seriesOptions: [String]
     let yearOptions: [Int]
+    /// Opens the hunt explainer. Owned by ``GarageView`` for the same reason `onAddCar` is: this bar
+    /// lives inside a `safeAreaInset`, and the sheets it triggers are presented from the grid.
+    let onExplainHunt: () -> Void
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
