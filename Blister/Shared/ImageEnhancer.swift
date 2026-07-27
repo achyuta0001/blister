@@ -3,10 +3,10 @@ import CoreImage.CIFilterBuiltins
 import UIKit
 import os
 
-/// On-device "pop" pass built on Core Image. Applies Core Image's suggested auto adjustments
-/// (exposure / contrast / tone / white-balance), then a gentle punch — a little more saturation and
-/// contrast, a touch of luminance sharpening, and light noise reduction — so a flat phone snap reads
-/// more like a catalogue shot.
+/// On-device "pop" pass built on Core Image. Optionally applies Core Image's suggested auto
+/// adjustments (exposure / contrast / tone / white-balance), then a gentle punch — a little more
+/// saturation and contrast, a touch of luminance sharpening, and light noise reduction — so a flat
+/// phone snap reads more like a catalogue shot.
 ///
 /// Kept deliberately GENTLE: most photos are of *carded* castings behind a clear plastic bubble, so
 /// aggressive sharpening or contrast/highlight boosts would only amplify specular glare and blow out
