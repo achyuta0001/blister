@@ -53,6 +53,18 @@ struct WishlistView: View {
             .background(DesignTokens.background)
             .navigationTitle(String(localized: "Wishlist"))
             .navigationBarTitleDisplayMode(.large)
+            // Unlike Garage and Aisle Check, this screen keeps its navigation bar, so the "+" belongs
+            // in the toolbar rather than in a bespoke header strip.
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        isAddingCar = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                    .accessibilityLabel(Text(String(localized: "Add to wishlist")))
+                }
+            }
             .overlay {
                 if wanted.isEmpty {
                     ContentUnavailableView(
