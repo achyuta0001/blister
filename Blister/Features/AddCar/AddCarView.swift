@@ -352,14 +352,19 @@ struct AddCarView: View {
         }
     }
 
+    /// Hidden for a wanted car: you cannot have paid for something you do not own yet. The price is
+    /// asked for at the moment it becomes true instead — the wishlist's "Found it" flow prompts for it
+    /// — which keeps `purchasePriceINR` meaning "what I paid" rather than "what I hope to pay".
     @ViewBuilder private var purchaseSection: some View {
-        Section(String(localized: "Purchase")) {
-            TextField(
-                String(localized: "Price paid (₹)"),
-                value: $model.pricePaid,
-                format: .number.precision(.fractionLength(0...2))
-            )
-            .keyboardType(.decimalPad)
+        if model.status == .owned {
+            Section(String(localized: "Purchase")) {
+                TextField(
+                    String(localized: "Price paid (₹)"),
+                    value: $model.pricePaid,
+                    format: .number.precision(.fractionLength(0...2))
+                )
+                .keyboardType(.decimalPad)
+            }
         }
     }
 
