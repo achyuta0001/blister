@@ -51,11 +51,20 @@ struct PhotoCleanupOrientationTests {
         let fromCapture = try #require(await PhotoCleanup.cleaned(capture),
                                        "cleanup of the tagged capture returned nil")
 
-        #expect(fromCapture.size == fromUpright.size)
+        // Same shape, to within resampling slack. Rotating the source buffer to build the tagged
+        // capture costs a pixel or so on an edge; a *dropped* orientation would instead swap the two
+        // dimensions outright, which this catches easily. (The old square composite canvas hid this
+        // by padding both results out to the same side length.)
+        #expect(abs(fromCapture.size.width - fromUpright.size.width) <= 2
+                && abs(fromCapture.size.height - fromUpright.size.height) <= 2,
+                "\(fromCapture.size) vs \(fromUpright.size)")
+        #expect(fromCapture.size.height > fromCapture.size.width, "the card should stay portrait")
+
         let difference = SyntheticCardScene.meanChannelDifference(
             try #require(fromCapture.cgImage), try #require(fromUpright.cgImage)
         )
-        // A 90° rotation of a portrait card on a square canvas scores far above this.
-        #expect(difference < 0.03, "composites differ by \(difference) — orientation was dropped")
+        // A 90° rotation of a portrait card scores far above this — and once the card path stopped
+        // padding out to a square canvas, it also shows up in the sizes compared above.
+        #expect(difference < 0.03, "cleaned images differ by \(difference) — orientation was dropped")
     }
 }
