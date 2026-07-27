@@ -405,7 +405,39 @@ struct AddCarView: View {
             colorway: model.colorway,
             status: model.status,
             in: allCars
-        ) {
+        )
+    }
+
+    private var duplicateTitle: String {
+        switch model.status {
+        case .owned:  return String(localized: "You already own this colorway")
+        case .wanted: return String(localized: "This is already on your wishlist")
+        }
+    }
+
+    private var duplicateMessage: String {
+        switch model.status {
+        case .owned:
+            return String(localized: "A car with this casting and colorway is already in your garage. Add it anyway?")
+        case .wanted:
+            return String(localized: "A car with this casting and colorway is already on your wishlist. Add it anyway?")
+        }
+    }
+
+    // MARK: Actions
+
+    /// Entry point for both Save buttons. Warns (non-blocking) if the list being added to already
+    /// holds the same casting and colorway; otherwise saves straight through. Collectors do own
+    /// multiples and do change their minds, so this only confirms — it never blocks.
+    ///
+    /// The check is scoped to the list being added to (see ``DuplicateCarDetector``), so the two
+    /// warnings stay independent: owning a car is not a reason to refuse wishlisting another, and a
+    /// wishlist row is not a reason to refuse buying a second one. Batch entry still can't self-trip,
+    /// because `reset()` clears the casting name — the warning only returns if the collector retypes
+    /// the same car, which is exactly when they want to hear about it.
+    private func save(addAnother: Bool) {
+        guard model.isValid else { return }
+        if duplicateExists {
             pendingDuplicateAddAnother = addAnother
             return
         }
