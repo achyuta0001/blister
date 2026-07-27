@@ -1,7 +1,7 @@
 import SwiftUI
 import SwiftData
 
-/// Lists the other owned cars that share a casting name with the one being viewed (spec §6.4).
+/// Lists the owned cars that share a casting name with the one being viewed (spec §6.4).
 /// Reachable from the "you own N variants" link on ``CarDetailView``.
 struct CastingVariantsView: View {
     let castingName: String
