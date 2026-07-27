@@ -54,6 +54,13 @@ per-file `project.pbxproj` edits needed.
   `CatalogMatcher` fuses OCR candidates with the catalog to identify specific castings.
 - **Persistence** (`Blister/Persistence/`): `ModelContainer.blister(cloudKitContainerID:)` — pass an
   id to enable CloudKit `.private` sync (off today); `.inMemory(seeded:)` for tests/previews.
+- **Photo cleanup** (`Blister/Features/PhotoCleanup/`): two isolation paths, and which one runs
+  decides what gets saved. A **carded** product goes through `CardDetector`
+  (`VNDetectRectanglesRequest` → deskew) and saves as *just the card*, at the card's own aspect — no
+  studio backdrop, no baked reflection. A **loose car** falls through to the subject lift and *does*
+  get composited onto the square studio backdrop, which it needs to stand on. `cleaned(_:)` uprights
+  the capture before anything else — `.cgImage` drops `UIImage.imageOrientation`
+  (`Blister/Shared/ImageOrientation.swift`).
 
 ## Gotchas (learned the hard way)
 
