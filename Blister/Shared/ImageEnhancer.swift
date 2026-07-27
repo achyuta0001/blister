@@ -22,15 +22,25 @@ enum ImageEnhancer {
     /// Shared context — `CIContext` is expensive to build and is safe to reuse across threads.
     private static let context = CIContext()
 
-    static func enhanced(_ image: UIImage) -> UIImage? {
+    /// - Parameters:
+    ///   - image: the source image; its scale and orientation are preserved.
+    ///   - autoAdjust: run Core Image's suggested auto-adjustment chain before the tuned steps.
+    ///     Leave `true` for photographic subjects. Pass `false` for **flat printed art** such as a
+    ///     perspective-corrected blister card: on iOS that chain is red-eye correction, face balance,
+    ///     vibrance, a tone curve and `CIHighlightShadowAdjust`. The first two are meaningless on a
+    ///     card, and the last lifts shadows by an auto-computed amount nothing here inspects — it is
+    ///     the one uncontrolled wash-out lever in the pipeline, and greys out card art.
+    static func enhanced(_ image: UIImage, autoAdjust: Bool = true) -> UIImage? {
         guard let cgImage = image.cgImage else { return nil }
         let source = CIImage(cgImage: cgImage)
         var working = source
 
         // 1. Auto exposure / contrast / tone / white-balance suggested by Core Image.
-        for filter in working.autoAdjustmentFilters() {
-            filter.setValue(working, forKey: kCIInputImageKey)
-            if let output = filter.outputImage { working = output }
+        if autoAdjust {
+            for filter in working.autoAdjustmentFilters() {
+                filter.setValue(working, forKey: kCIInputImageKey)
+                if let output = filter.outputImage { working = output }
+            }
         }
 
         // 2. Gentle punch: a hair more saturation, barely any extra contrast (contrast bumps push
