@@ -6,10 +6,11 @@ import UIKit
 
 /// Builds and drives the RealityKit "studio" scene for a single car photo.
 ///
-/// The photo becomes a lit, glossy card standing on a reflective studio floor: a rounded slab body
-/// (so it keeps visible depth at grazing angles), a front label plane textured with the photo, a
-/// gradient-faded mirror reflection below the floor, and a soft contact-shadow blob beneath it. A key
-/// + fill + rim light rig gives it a photographed-in-a-studio feel.
+/// The photo becomes a card standing on a reflective studio floor: a rounded slab body (so it keeps
+/// visible depth at grazing angles), a front label plane textured with the photo, a gradient-faded
+/// mirror reflection below the floor, and a soft contact-shadow blob beneath it. A key + fill + rim
+/// light rig gives it a photographed-in-a-studio feel. The rig lights the *geometry* — the photo face
+/// itself is unlit so the picture reads in its own colours (see ``photoMaterial(texture:)``).
 ///
 /// All entity mutation happens on the main actor; `StudioView` owns the SwiftUI/`RealityView` shell
 /// and forwards gesture + per-frame ticks here. `make(image:reduceMotion:)` returns `nil` (never
