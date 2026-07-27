@@ -60,6 +60,12 @@ struct CarEditView: View {
             Form {
                 photoSection
                 Section(String(localized: "Details")) {
+                    // Distinct from the "Hunt status" picker below: this one is where the car lives,
+                    // that one is whether it's a treasure hunt.
+                    CollectionStatusPicker(
+                        title: String(localized: "Keep in"),
+                        selection: $status
+                    )
                     TextField(String(localized: "Casting name"), text: $castingName)
                     Picker(String(localized: "Brand"), selection: $brand) {
                         ForEach(Brand.allCases) { Text($0.displayName).tag($0) }
