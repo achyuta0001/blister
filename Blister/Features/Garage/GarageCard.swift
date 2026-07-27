@@ -52,6 +52,7 @@ struct GarageCard: View {
            let image = DocumentsPhotoStore.shared.thumbnail(for: first) {
             Image(uiImage: image)
                 .resizable()
+                .scaledToFill()
         } else {
             TypographicPlaceholder(castingName: car.castingName, brand: car.brand)
         }
