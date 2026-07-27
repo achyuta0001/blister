@@ -9,7 +9,11 @@ import os
 /// the user shoots / picks / skips a photo, then fills one short form where only the casting name is
 /// required. Save inserts the car and returns to the previous screen; "Save and add another" keeps
 /// the camera open for batch entry. Casting name, series, and colorway autocomplete from values
-/// already in the collection. Present modally from a "+" toolbar button.
+/// already in the collection.
+///
+/// Presented as a sheet from whichever screen the user tapped "+" on: Garage and Aisle Check present
+/// it unchanged (defaulting to the Garage), Wishlist passes `initialStatus: .wanted` so the form opens
+/// already pointed at the wishlist. The user can still flip it either way in the form.
 struct AddCarView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
