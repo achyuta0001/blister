@@ -385,7 +385,7 @@ struct AddCarView: View {
         }
     }
 
-    // MARK: Actions
+    // MARK: Duplicate warning
 
     /// Entry point for both Save buttons. Warns (non-blocking) if an owned car with the same casting
     /// and colorway already exists; otherwise saves straight through. Collectors do own multiples, so
