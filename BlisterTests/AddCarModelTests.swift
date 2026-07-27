@@ -106,8 +106,8 @@ struct AddCarModelTests {
     }
 
     /// Batch-adding wanted cars must never trip the "you already own this" confirmation over the
-    /// entries it just made — only owned cars count as duplicates.
-    @Test func wantedEntriesDoNotBecomeTheirOwnDuplicates() {
+    /// entries it just made — the garage check only ever looks at owned cars.
+    @Test func wantedEntriesDoNotBecomeTheirOwnGarageDuplicates() {
         let model = AddCarModel(status: .wanted)
         model.castingName = "'67 Camaro"
         model.colorway = "Spectraflame Blue"
@@ -117,9 +117,10 @@ struct AddCarModelTests {
         model.castingName = "'67 Camaro"
         model.colorway = "Spectraflame Blue"
 
-        #expect(!DuplicateCarDetector.ownedDuplicateExists(
+        #expect(!DuplicateCarDetector.duplicateExists(
             castingName: model.castingName,
             colorway: model.colorway,
+            status: .owned,
             in: [first]
         ))
     }
