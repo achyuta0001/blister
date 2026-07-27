@@ -93,7 +93,8 @@ struct GarageView: View {
                         GarageFilterBar(
                             filters: filters,
                             seriesOptions: seriesOptions,
-                            yearOptions: yearOptions
+                            yearOptions: yearOptions,
+                            onExplainHunt: { isExplainingHunts = true }
                         )
                     }
                 }
