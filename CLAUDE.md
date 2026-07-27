@@ -71,9 +71,13 @@ per-file `project.pbxproj` edits needed.
   `xcodebuild -downloadPlatform iOS`. `xcodebuild test` on a cold sim can fail SwiftData with
   "sandbox access denied" — boot + launch the app once first.
 - **Decimal init ambiguity:** `optionalInt.map(Decimal.init)` is ambiguous — use `.map { Decimal($0) }`.
-- **Vision in the simulator:** `VNGenerateForegroundInstanceMaskRequest` (photo cleanup) can't build
-  an inference context in the sim (returns nil → keeps original, by design); verify lift quality on a
-  real device or the Mac host. Text recognition (`RecognizeTextRequest`) does work in the sim.
+- **Vision in the simulator:** the ML-backed requests can't build an inference context in the sim
+  ("Failed to create espresso context") — `VNGenerateForegroundInstanceMaskRequest` (photo cleanup,
+  returns nil → keeps original, by design) and `VNGenerateAttentionBasedSaliencyImageRequest`
+  (thumbnail cropping, falls back to the whole image). Both are simulator-untestable *by design*, so
+  assert their pure rect/geometry math instead (`SaliencyCropper.bufferCropRect`) and verify quality
+  on a real device or the Mac host. Classical CV **does** run in the sim: `RecognizeTextRequest` and
+  `VNDetectRectanglesRequest` (`CardDetector`).
 - **Studio is a billboard:** the 3D studio shows a lit photo cutout (camera orbits it on a clamped
   arc), not a real mesh — single-photo → true 3D isn't possible Apple-only. Object Capture is the only
   real-3D path and is not built.
