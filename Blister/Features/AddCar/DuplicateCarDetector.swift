@@ -28,8 +28,15 @@ enum DuplicateCarDetector {
             && SearchNormalizer.normalize(colorway ?? "") == SearchNormalizer.normalize(car.colorway ?? "")
     }
 
-    /// True when any owned car in `cars` matches the given casting name and colorway.
-    static func ownedDuplicateExists(castingName: String, colorway: String?, in cars: [Car]) -> Bool {
-        cars.contains { isDuplicate(castingName: castingName, colorway: colorway, of: $0) }
+    /// True when any car in `cars` on the given list matches the supplied casting name and colorway.
+    static func duplicateExists(
+        castingName: String,
+        colorway: String?,
+        status: CollectionStatus,
+        in cars: [Car]
+    ) -> Bool {
+        cars.contains {
+            isDuplicate(castingName: castingName, colorway: colorway, status: status, of: $0)
+        }
     }
 }
