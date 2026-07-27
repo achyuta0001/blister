@@ -471,7 +471,8 @@ struct AddCarView: View {
 
         if addAnother {
             model.reset()
-            if CameraPicker.isCameraAvailable {
+            // `reset()` keeps the status, so batch-adding wanted cars keeps skipping the viewfinder.
+            if opensCameraFirst {
                 showCamera = true
             }
         } else {
