@@ -1,3 +1,4 @@
+import CoreImage
 import Testing
 import UIKit
 @testable import Blister
