@@ -77,6 +77,10 @@ final class AddCarModel {
     }
 
     /// Clears every field so "Save and add another" starts fresh.
+    ///
+    /// ``status`` is deliberately **kept**, not reset to `.owned`: this exists for batch entry, and a
+    /// collector working through a wishlist adds several wanted cars in a row. Silently flipping each
+    /// subsequent entry back to the Garage would file cars in the wrong place without them noticing.
     func reset() {
         castingName = ""
         brand = .hotWheels
