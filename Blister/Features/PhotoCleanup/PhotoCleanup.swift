@@ -140,6 +140,9 @@ enum PhotoCleanup {
     /// Draws the lifted subject on a dark studio backdrop with a soft contact shadow, auto-framed on
     /// a square canvas. Uses `CleanupGeometry` for the framing math (top-left/bottom-left symmetric
     /// because the placement is centered).
+    ///
+    /// Only the **subject-lift** path reaches this: it exists to give a cutout with a transparent
+    /// surround somewhere to stand. Carded photos return the crop itself (see ``process(cgImage:)``).
     private static func composite(subject: CGImage) -> Data? {
         let subjectSize = CGSize(width: subject.width, height: subject.height)
         guard subjectSize.width > 0, subjectSize.height > 0 else { return nil }
