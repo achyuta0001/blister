@@ -112,7 +112,8 @@ final class AddCarModel {
             colorway: Self.trimmedOrNil(colorway),
             huntStatus: huntStatus,
             condition: condition,
-            purchasePriceINR: pricePaid,
+            status: status,
+            purchasePriceINR: status == .owned ? pricePaid : nil,
             estimatedValueINR: estimatedValueINR ?? appliedCatalogPriceINR,
             photoFilenames: photoFilenames
         )
