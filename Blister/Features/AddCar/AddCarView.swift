@@ -387,9 +387,7 @@ struct AddCarView: View {
 
     // MARK: Duplicate warning
 
-    /// Entry point for both Save buttons. Warns (non-blocking) if an owned car with the same casting
-    /// and colorway already exists; otherwise saves straight through. Collectors do own multiples, so
-    /// this only confirms — it never blocks.
+    /// Whether the form should jump straight into the viewfinder.
     ///
     /// The check reads the *existing* cars' status, never the one being added: only owned cars count
     /// as duplicates (see ``DuplicateCarDetector``). So batch-adding wanted cars can't trip over the
