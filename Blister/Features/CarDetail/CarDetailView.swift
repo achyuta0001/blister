@@ -40,7 +40,7 @@ struct CarDetailView: View {
                         CastingVariantsView(castingName: car.castingName, excludingID: car.id)
                     } label: {
                         Label(
-                            String(localized: "You own \(variants.count + 1) variants of this casting"),
+                            String(localized: "You own \(ownedVariantCount) variants of this casting"),
                             systemImage: "square.stack.3d.up"
                         )
                     }
