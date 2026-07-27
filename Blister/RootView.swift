@@ -23,6 +23,17 @@ struct RootView: View {
 
     @State private var selection: Tab
 
+    #if DEBUG
+    @Environment(\.modelContext) private var modelContext
+    @State private var debugStudioPhoto: DebugStudioPhoto?
+
+    /// Identifiable wrapper so a `UIImage` can drive `.fullScreenCover(item:)`.
+    private struct DebugStudioPhoto: Identifiable {
+        let id = UUID()
+        let image: UIImage
+    }
+    #endif
+
     init(initialTab: Tab = .garage) {
         _selection = State(initialValue: initialTab)
     }
