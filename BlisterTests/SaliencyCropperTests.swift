@@ -28,8 +28,8 @@ struct SaliencyCropperTests {
                 == CGRect(origin: .zero, size: image))
     }
 
-    @Test func centerCropWithDegenerateImageReturnsImageRect() {
-        #expect(SaliencyCropper.centerCropRect(imageSize: .zero, targetAspect: 1) == .zero)
+    @Test func fallbackWithDegenerateImageReturnsImageRect() {
+        #expect(SaliencyCropper.fallbackCropRect(imageSize: .zero) == .zero)
     }
 
     // MARK: cropRect — aspect expansion
