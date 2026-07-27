@@ -54,7 +54,7 @@ enum SaliencyCropper {
             try handler.perform([request])
         } catch {
             logger.error("Saliency request failed: \(error.localizedDescription, privacy: .public)")
-            return centerCropRect(imageSize: imageSize, targetAspect: targetAspect)
+            return fallbackCropRect(imageSize: imageSize)
         }
 
         guard let observation = request.results?.first,
