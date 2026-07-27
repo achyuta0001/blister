@@ -45,6 +45,8 @@ struct WishlistCard: View {
         }
     }
 
+    /// Fills the square cell it is overlaid on, cropping rather than stretching — `.scaledToFill()`
+    /// takes no ratio argument, so the photo keeps its own (see ``GarageCard``).
     @ViewBuilder private var thumbnail: some View {
         if let first = car.photoFilenames.first,
            let image = DocumentsPhotoStore.shared.thumbnail(for: first) {
