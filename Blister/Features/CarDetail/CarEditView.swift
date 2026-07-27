@@ -14,6 +14,10 @@ struct CarEditView: View {
     @State private var series: String
     @State private var huntStatus: HuntStatus
     @State private var condition: Condition
+    /// Garage vs Wishlist. Editable here so a car can be moved either direction at any time — until
+    /// now the only way back to `.wanted` was `FoundItSheet`'s Undo, reachable for a few seconds
+    /// after a "Found it" tap.
+    @State private var status: CollectionStatus
     @State private var pricePaid: Decimal?
     @State private var purchaseLocation: String
     @State private var notes: String
