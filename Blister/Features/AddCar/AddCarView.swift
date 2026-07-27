@@ -403,6 +403,7 @@ struct AddCarView: View {
         DuplicateCarDetector.duplicateExists(
             castingName: model.castingName,
             colorway: model.colorway,
+            status: model.status,
             in: allCars
         ) {
             pendingDuplicateAddAnother = addAnother
