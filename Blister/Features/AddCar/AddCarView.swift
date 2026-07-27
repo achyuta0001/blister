@@ -90,7 +90,7 @@ struct AddCarView: View {
             }
             .errorAlert($saveError)
             .confirmationDialog(
-                String(localized: "You already own this colorway"),
+                duplicateTitle,
                 isPresented: Binding(
                     get: { pendingDuplicateAddAnother != nil },
                     set: { presented in if !presented { pendingDuplicateAddAnother = nil } }
