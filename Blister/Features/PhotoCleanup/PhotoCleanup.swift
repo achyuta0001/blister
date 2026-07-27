@@ -53,8 +53,12 @@ enum PhotoCleanup {
     private static func process(cgImage: CGImage) -> Data? {
         if let card = CardDetector.croppedCard(from: cgImage) {
             logger.debug("Cleanup used the card-crop path")
-            let enhanced = ImageEnhancer.enhanced(UIImage(cgImage: card))?.cgImage ?? card
-            return composite(subject: enhanced)
+            // Printed card art, not a photographic scene: skip Core Image's auto-adjust chain, whose
+            // `CIHighlightShadowAdjust` lifts shadows with uninspected auto parameters and greys the
+            // print out (and whose red-eye/face-balance steps are meaningless here).
+            let enhanced = ImageEnhancer.enhanced(UIImage(cgImage: card), autoAdjust: false)?.cgImage ?? card
+            // No composite — see the type doc. The card *is* the photo.
+            return encoded(enhanced)
         }
         logger.debug("No card found — falling back to the subject lift")
         return liftedSubject(cgImage: cgImage)
